@@ -6,6 +6,7 @@ class Game:
     def __init__(self):
         self.player = Player()
         self.location = Location1()
+        self.in_battle = False
 
     def update(self, screen, keys, events, dt):
 
@@ -23,6 +24,13 @@ class Game:
 
         for enemy in self.location.enemies:
             if player_rect.colliderect(enemy.rect):
+
+            if not self.in_battle:
+                self.in_battle = True
+
+                # удалить врага
+                self.location.enemies.remove(enemy)
+
                 return "battle"
 
         # рендер

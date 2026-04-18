@@ -17,11 +17,13 @@ running = True
 from scenes.menu import Menu
 from scenes.game import Game
 from scenes.pause import Pause
+from scenes.battle import Battle
 
 # создаем сцены
 menu = Menu()
 game = Game()
 pause = Pause()
+battle = Battle()
 
 # главный игровой цикл
 while running:
@@ -41,9 +43,14 @@ while running:
 
     elif state == "game":
         state = game.update(screen, keys, events, dt)
+        if prev_state == "battle":
+            game.in_battle = False
 
     elif state == "pause":
         state = pause.update(screen, keys, events)
+
+    elif state == "battle":
+        state = battle.update(screen, keys, events, dt)
 
     # обновление экрана
     pygame.display.update()
