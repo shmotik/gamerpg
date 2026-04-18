@@ -25,13 +25,13 @@ class Game:
         for enemy in self.location.enemies:
             if player_rect.colliderect(enemy.rect):
 
-            if not self.in_battle:
-                self.in_battle = True
+                if not self.in_battle:
+                    self.in_battle = True
 
-                # удалить врага
-                self.location.enemies.remove(enemy)
+                    # удалить врага
+                    self.location.enemies.remove(enemy)
 
-                return "battle"
+                    return "battle"
 
         # рендер
         screen.fill((0, 0, 0))

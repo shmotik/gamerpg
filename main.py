@@ -24,13 +24,13 @@ menu = Menu()
 game = Game()
 pause = Pause()
 battle = Battle()
+prev_state = state
 
 # главный игровой цикл
 while running:
 
     dt = clock.tick(60) / 1000
     keys = pygame.key.get_pressed()
-
     events = pygame.event.get()
 
     for event in events:
@@ -43,14 +43,17 @@ while running:
 
     elif state == "game":
         state = game.update(screen, keys, events, dt)
-        if prev_state == "battle":
-            game.in_battle = False
 
     elif state == "pause":
         state = pause.update(screen, keys, events)
 
     elif state == "battle":
         state = battle.update(screen, keys, events, dt)
+
+    if prev_state == "battle" and state == "game":
+        game.in_battle = False
+
+    prev_state = state
 
     # обновление экрана
     pygame.display.update()
