@@ -27,17 +27,17 @@ class Player:
 
         # движение по X
         self.x += dx * self.speed * dt
-        self.collide(walls, dx, 0)
+        self._collide(walls, dx, 0)
 
         # движение по Y
         self.y += dy * self.speed * dt
-        self.collide(walls, 0, dy)
+        self._collide(walls, 0, dy)
 
-    def collide(self, walls, dx, dy):
-        player_rect = pygame.Rect(self.x, self.y, self.size, self.size)
+    def _collide(self, walls, dx, dy):
+        rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
         for wall in walls:
-            if player_rect.colliderect(wall.rect):
+            if rect.colliderect(wall.rect):
                 if dx > 0:
                     self.x = wall.rect.left - self.size
                 if dx < 0:

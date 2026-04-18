@@ -1,14 +1,10 @@
 from objects.player import Player
-from objects.wall import Wall
-from objects.npc import NPC
-from objects.enemy import Enemy
 from world.location1 import Location1
 import pygame
 
 class Game:
     def __init__(self):
         self.player = Player()
-
         self.location = Location1()
 
     def update(self, screen, keys, events, dt):
