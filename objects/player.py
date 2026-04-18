@@ -48,4 +48,9 @@ class Player:
                     self.y = wall.rect.bottom
 
     def draw(self, screen):
-        pygame.draw.rect(screen, (255, 0, 0), (self.x, self.y, self.size, self.size))
+        screen_width, screen_height = screen.get_size()
+
+        x = screen_width // 2
+        y = screen_height // 2
+
+        pygame.draw.rect(screen, (0, 255, 0), (x, y, self.size, self.size))

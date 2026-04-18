@@ -4,5 +4,11 @@ class NPC:
     def __init__(self, x, y):
         self.rect = pygame.Rect(x, y, 40, 40)
 
-    def draw(self, screen):
-        pygame.draw.rect(screen, (0, 255, 0), self.rect)
+    def draw(self, screen, camera_x, camera_y):
+        rect = pygame.Rect(
+            self.rect.x - camera_x,
+            self.rect.y - camera_y,
+            self.rect.width,
+            self.rect.height
+        )
+        pygame.draw.rect(screen, (0, 255, 0), rect)

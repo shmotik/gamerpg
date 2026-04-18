@@ -10,6 +10,12 @@ class Game:
 
     def update(self, screen, keys, events, dt):
 
+        # камера
+        screen_width, screen_height = screen.get_size()
+
+        camera_x = self.player.x - screen_width // 2
+        camera_y = self.player.y - screen_height // 2
+
         # движение игрока
         self.player.move(keys, dt, self.location.walls)
 
@@ -29,7 +35,7 @@ class Game:
                     self.in_battle = True
 
                     # удалить врага
-                    self.location.enemies.remove(enemy)
+                    self.current_enemy = enemy
 
                     return "battle"
 
@@ -37,13 +43,13 @@ class Game:
         screen.fill((0, 0, 0))
 
         for wall in self.location.walls:
-            wall.draw(screen)
+            wall.draw(screen, camera_x, camera_y)
 
         for enemy in self.location.enemies:
-            enemy.draw(screen)
+            enemy.draw(screen, camera_x, camera_y)
 
         for npc in self.location.npcs:
-            npc.draw(screen)
+            npc.draw(screen, camera_x, camera_y)
 
         self.player.draw(screen)
 

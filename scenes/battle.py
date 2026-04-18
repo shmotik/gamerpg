@@ -4,6 +4,12 @@ import random
 
 class Battle:
 
+    def reset(self):
+        self.player_hp = 100
+        self.enemy_hp = 50
+        self.state = "player_turn"
+        self.message = "Choose action"
+
     def update_fonts(self):
         screen = pygame.display.get_surface()
         height = screen.get_height()

@@ -73,7 +73,14 @@ while running:
     elif state == "exit":
         running = False
 
+    if state == "game" and prev_state == "battle":
+        battle.reset()
+
     if prev_state == "battle" and state == "game":
+
+        if battle.state == "win":
+            game.location.enemies.remove(game.current_enemy)
+            
         game.in_battle = False
 
     prev_state = state
