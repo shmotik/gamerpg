@@ -3,10 +3,19 @@ import pygame
 
 class Menu:
 
+    def update_fonts(self):
+        screen = pygame.display.get_surface()
+        height = screen.get_height()
+
+        font_size_big = int(height * 0.08)
+        font_size_small = int(height * 0.05)
+
+        self.font = pygame.font.SysFont(None, font_size_big)
+        self.small = pygame.font.SysFont(None, font_size_small)
+
     def __init__(self):
 
-        self.font = pygame.font.SysFont(None, 60)
-        self.small = pygame.font.SysFont(None, 40)
+        self.update_fonts()
 
         self.up_keys = [pygame.K_UP, pygame.K_w]
         self.down_keys = [pygame.K_DOWN, pygame.K_s]
@@ -44,6 +53,8 @@ class Menu:
         # рендер
         screen.fill((20, 20, 20))
 
+        width, height = screen.get_size()
+
         title = self.font.render("MY GAME", True, (255, 255, 255))
         screen.blit(title, (300, 100))
 
@@ -52,7 +63,10 @@ class Menu:
             color = (255, 255, 0) if i == self.selected else (200, 200, 200)
 
             text = self.small.render(btn, True, color)
-            screen.blit(text, (320, 250 + i * 60))
+
+            x = width // 2 - text.get_width() // 2
+            y = height // 2 + i * 60
+            screen.blit(text, (x, y))
             
         #hint = self.small.render("PRESS ENTER TO START", True, (200, 200, 200))
 

@@ -4,9 +4,19 @@ import random
 
 class Battle:
 
+    def update_fonts(self):
+        screen = pygame.display.get_surface()
+        height = screen.get_height()
+
+        big = int(height * 0.08)
+        small = int(height * 0.05)
+
+        self.font = pygame.font.SysFont(None, big)
+        self.small = pygame.font.SysFont(None, small)
+
     def __init__(self):
-        self.font = pygame.font.SysFont(None, 60)
-        self.small = pygame.font.SysFont(None, 40)
+
+        self.update_fonts()
 
         # HP
         self.player_hp = 100

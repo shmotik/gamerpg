@@ -5,8 +5,14 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 class Settings:
 
+    def update_font(self):
+        height = pygame.display.get_surface().get_height()
+        font_size = int(height * 0.06)
+        self.font = pygame.font.SysFont(None, font_size)
+
     def __init__(self):
-        self.font = pygame.font.SysFont(None, 50)
+
+        self.update_font()
 
         self.up_keys = [pygame.K_UP, pygame.K_w]
         self.down_keys = [pygame.K_DOWN, pygame.K_s]
@@ -44,16 +50,23 @@ class Settings:
                     return "menu"
 
         # render
+        width, height = screen.get_size()
+
         screen.fill((10, 10, 40))
 
         title = self.font.render("SETTINGS", True, (255, 255, 255))
-        screen.blit(title, (300, 100))
+        x = width // 2 - title.get_width() // 2
+        screen.blit(title, (x, 80))
 
         for i, res in enumerate(self.resolutions):
 
             color = (255, 255, 0) if i == self.selected else (200, 200, 200)
 
             text = self.font.render(f"{res[0]} x {res[1]}", True, color)
-            screen.blit(text, (300, 200 + i * 50))
+            
+            x = width // 2 - text.get_width() // 2
+            y = height // 2 - 100 + i * 50
+
+            screen.blit(text, (x, y))
 
         return "settings"

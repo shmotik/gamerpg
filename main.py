@@ -1,5 +1,7 @@
 import pygame
+import os
 
+os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
 
 # экран
@@ -59,9 +61,15 @@ while running:
         if isinstance(result, tuple):
             state, res = result
             screen = pygame.display.set_mode(res)
+
+            menu.update_fonts()
+            battle.update_fonts()
+            pause.update_fonts()
+            settings.update_font()
+
         else:
             state = result
-            
+
     elif state == "exit":
         running = False
 
