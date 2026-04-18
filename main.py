@@ -18,12 +18,15 @@ from scenes.menu import Menu
 from scenes.game import Game
 from scenes.pause import Pause
 from scenes.battle import Battle
+from scenes.settings import Settings
 
 # создаем сцены
 menu = Menu()
 game = Game()
 pause = Pause()
 battle = Battle()
+settings = Settings()
+
 prev_state = state
 
 # главный игровой цикл
@@ -49,6 +52,18 @@ while running:
 
     elif state == "battle":
         state = battle.update(screen, keys, events, dt)
+
+    elif state == "settings":
+        result = settings.update(screen, keys, events)
+
+        if isinstance(result, tuple):
+            state, res = result
+            screen = pygame.display.set_mode(res)
+        else:
+            state = result
+            
+    elif state == "exit":
+        running = False
 
     if prev_state == "battle" and state == "game":
         game.in_battle = False

@@ -6,7 +6,7 @@ class Battle:
 
     def __init__(self):
         self.font = pygame.font.SysFont(None, 60)
-        self.small_font = pygame.font.SysFont(None, 40)
+        self.small = pygame.font.SysFont(None, 40)
 
         # HP
         self.player_hp = 100
@@ -64,13 +64,13 @@ class Battle:
         title = self.font.render("BATTLE", True, (255, 255, 255))
         screen.blit(title, (screen.get_width()//2 - 100, 50))
 
-        hp1 = self.small_font.render(f"PLAYER HP: {self.player_hp}", True, (0, 255, 0))
-        hp2 = self.small_font.render(f"ENEMY HP: {self.enemy_hp}", True, (255, 0, 0))
+        hp1 = self.small.render(f"PLAYER HP: {self.player_hp}", True, (0, 255, 0))
+        hp2 = self.small.render(f"ENEMY HP: {self.enemy_hp}", True, (255, 0, 0))
 
         screen.blit(hp1, (50, 150))
         screen.blit(hp2, (50, 200))
 
-        msg = self.small_font.render(self.message, True, (255, 255, 255))
+        msg = self.small.render(self.message, True, (255, 255, 255))
         screen.blit(msg, (50, 300))
 
         # подсказки
@@ -86,7 +86,7 @@ class Battle:
             hint_text = "ENTER - continue"
 
         if hint_text:
-            hint = self.small_font.render(hint_text, True, (255, 255, 255))
+            hint = self.small.render(hint_text, True, (255, 255, 255))
             screen.blit(hint, (50, 450))
 
         return "battle"
