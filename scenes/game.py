@@ -1,5 +1,7 @@
 from objects.player import Player
+from world.locations import LOCATIONS
 from world.location1 import Location1
+
 import pygame
 
 class Game:
@@ -16,8 +18,17 @@ class Game:
         camera_x = self.player.x - screen_width // 2
         camera_y = self.player.y - screen_height // 2
 
+        camera_x = max(0, camera_x)
+        camera_y = max(0, camera_y)
+
+        camera_x = min(camera_x, self.location.width - screen_width)
+        camera_y = min(camera_y, self.location.height - screen_height)
+
         # движение игрока
-        self.player.move(keys, dt, self.location.walls)
+        self.player.move(keys, dt, self.location.walls, self.location.width, self.location.height)
+        
+        self.player.x = max(0, min(self.player.x, self.location.width - self.player.size))
+        self.player.y = max(0, min(self.player.y, self.location.height - self.player.size))
 
         # события
         for event in events:
@@ -39,6 +50,14 @@ class Game:
 
                     return "battle"
 
+        for exit in self.location.exits:
+            if player_rect.colliderect(exit["rect"]):
+
+                self.location = LOCATIONS[exit["target"]]()
+                self.player.x, self.player.y = exit["spawn"]
+
+                break
+        
         # рендер
         screen.fill((0, 0, 0))
 
@@ -51,6 +70,18 @@ class Game:
         for npc in self.location.npcs:
             npc.draw(screen, camera_x, camera_y)
 
-        self.player.draw(screen)
+        self.player.draw(screen, camera_x, camera_y)
+
+        for exit in self.location.exits:
+            pygame.draw.rect(
+                screen,
+                (0, 0, 255),
+                (
+                    exit["rect"].x - camera_x,
+                    exit["rect"].y - camera_y,
+                    exit["rect"].width,
+                    exit["rect"].height
+                )
+            )
 
         return "game"

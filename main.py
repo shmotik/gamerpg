@@ -30,6 +30,7 @@ battle = Battle()
 settings = Settings()
 
 prev_state = state
+settings_from = "menu"
 
 # главный игровой цикл
 while running:
@@ -41,6 +42,13 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
+
+    if isinstance(state,tuple):
+        new_state, from_state = state
+
+        if new_state == "settings":
+            settings_from = from_state
+            state = "settings"
 
     # переключение сцен
     if state == "menu":
@@ -55,20 +63,26 @@ while running:
     elif state == "battle":
         state = battle.update(screen, keys, events, dt)
 
+
     elif state == "settings":
         result = settings.update(screen, keys, events)
 
-        if isinstance(result, tuple):
-            state, res = result
-            screen = pygame.display.set_mode(res)
+        if result == "close":
+            state = settings_from
 
-            menu.update_fonts()
-            battle.update_fonts()
-            pause.update_fonts()
-            settings.update_font()
+        elif isinstance(result, tuple):
+            action, data = result
 
-        else:
-            state = result
+            if action == "apply":
+                w, h = data
+                screen = pygame.display.set_mode((w, h))
+
+                menu.update_fonts()
+                battle.update_fonts()
+                pause.update_fonts()
+                settings.update_fonts()
+
+                state = settings_from
 
     elif state == "exit":
         running = False
@@ -83,10 +97,11 @@ while running:
             
         game.in_battle = False
 
-    prev_state = state
 
     # обновление экрана
     pygame.display.update()
+
+    prev_state = state
 
 pygame.quit()
 

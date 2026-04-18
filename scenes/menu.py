@@ -45,7 +45,7 @@ class Menu:
                         return "game"
 
                     if self.buttons[self.selected] == "SETTINGS":
-                        return "settings"
+                        return ("settings", "menu")
 
                     if self.buttons[self.selected] == "EXIT":
                         return "exit"
@@ -68,15 +68,5 @@ class Menu:
             y = height // 2 + i * 60
             screen.blit(text, (x, y))
             
-        #hint = self.small.render("PRESS ENTER TO START", True, (200, 200, 200))
-
-        #screen.blit(title, (screen.get_width()//2 - 100, 200))
-        #screen.blit(hint, (screen.get_width()//2 - 180, 300))
-
-        # переключение сцены
-        #for event in events:
-         #   if event.type == pygame.KEYDOWN:
-          #      if event.key == pygame.K_RETURN:
-           #         return "game"
 
         return "menu"

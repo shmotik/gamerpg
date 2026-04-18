@@ -5,14 +5,14 @@ os.environ['SDL_VIDEO_CENTERED'] = '1'
 
 class Settings:
 
-    def update_font(self):
+    def update_fonts(self):
         height = pygame.display.get_surface().get_height()
-        font_size = int(height * 0.06)
-        self.font = pygame.font.SysFont(None, font_size)
+        fonts_size = int(height * 0.06)
+        self.fonts = pygame.font.SysFont(None, fonts_size)
 
     def __init__(self):
 
-        self.update_font()
+        self.update_fonts()
 
         self.up_keys = [pygame.K_UP, pygame.K_w]
         self.down_keys = [pygame.K_DOWN, pygame.K_s]
@@ -44,17 +44,17 @@ class Settings:
 
                 if event.key == pygame.K_RETURN:
                     w, h = self.resolutions[self.selected]
-                    return ("menu", (w, h))
+                    return ("apply", (w, h))
 
                 if event.key == pygame.K_ESCAPE:
-                    return "menu"
+                    return "close"
 
         # render
         width, height = screen.get_size()
 
         screen.fill((10, 10, 40))
 
-        title = self.font.render("SETTINGS", True, (255, 255, 255))
+        title = self.fonts.render("SETTINGS", True, (255, 255, 255))
         x = width // 2 - title.get_width() // 2
         screen.blit(title, (x, 80))
 
@@ -62,11 +62,11 @@ class Settings:
 
             color = (255, 255, 0) if i == self.selected else (200, 200, 200)
 
-            text = self.font.render(f"{res[0]} x {res[1]}", True, color)
+            text = self.fonts.render(f"{res[0]} x {res[1]}", True, color)
             
             x = width // 2 - text.get_width() // 2
             y = height // 2 - 100 + i * 50
 
             screen.blit(text, (x, y))
 
-        return "settings"
+        return None

@@ -8,7 +8,7 @@ class Player:
         self.size = 50
         self.speed = 300
 
-    def move(self, keys, dt, walls):
+    def move(self, keys, dt, walls, world_width, world_height):
         dx, dy = 0, 0
 
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
@@ -33,6 +33,10 @@ class Player:
         self.y += dy * self.speed * dt
         self._collide(walls, 0, dy)
 
+        # ограничения
+        self.x = max(0, min(self.x, world_width - self.size))
+        self.y = max(0, min(self.y, world_height - self.size))
+
     def _collide(self, walls, dx, dy):
         rect = pygame.Rect(self.x, self.y, self.size, self.size)
 
@@ -47,10 +51,16 @@ class Player:
                 if dy < 0:
                     self.y = wall.rect.bottom
 
-    def draw(self, screen):
+    def draw(self, screen, camera_x, camera_y):
+
+        pygame.draw.rect(
+            screen,
+            (0, 255, 0),
+            (
+                self.x - camera_x,
+                self.y - camera_y,
+                self.size,
+                self.size
+            )
+        )
         screen_width, screen_height = screen.get_size()
-
-        x = screen_width // 2
-        y = screen_height // 2
-
-        pygame.draw.rect(screen, (0, 255, 0), (x, y, self.size, self.size))
