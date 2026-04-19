@@ -1,8 +1,10 @@
 import pygame
 import random
 
+from scenes.base_scene import Scene
 
-class Battle:
+
+class Battle(Scene):
 
     def reset(self):
         self.player_hp = 100

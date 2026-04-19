@@ -1,7 +1,9 @@
 import pygame
 
+from scenes.base_scene import Scene
 
-class Pause:
+
+class Pause(Scene):
 
     def update_fonts(self):
         screen = pygame.display.get_surface()
@@ -23,7 +25,7 @@ class Pause:
         self.buttons = ["RESUME", "SETTINGS", "MAIN MENU"]
         self.selected = 0
 
-    def update(self, screen, keys, events):
+    def update(self, screen, keys, events, dt=None):
 
         # выбор и переход сцен
         for event in events:

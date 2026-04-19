@@ -1,10 +1,11 @@
 from objects.player import Player
 from world.locations import LOCATIONS
 from world.location1 import Location1
+from scenes.base_scene import Scene
 
 import pygame
 
-class Game:
+class Game(Scene):
     def __init__(self):
         self.player = Player()
         self.location = Location1()

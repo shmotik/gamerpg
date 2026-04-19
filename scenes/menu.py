@@ -1,7 +1,9 @@
 import pygame
 
+from scenes.base_scene import Scene
 
-class Menu:
+
+class Menu(Scene):
 
     def update_fonts(self):
         screen = pygame.display.get_surface()
@@ -23,7 +25,7 @@ class Menu:
         self.buttons = ["START", "SETTINGS", "EXIT"]
         self.selected = 0
 
-    def update(self, screen, keys, events):
+    def update(self, screen, keys, events, dt=None):
 
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -42,12 +44,14 @@ class Menu:
                 if event.key == pygame.K_RETURN:
 
                     if self.buttons[self.selected] == "START":
+                        self.switch_to("game")
                         return "game"
 
                     if self.buttons[self.selected] == "SETTINGS":
                         return ("settings", "menu")
 
                     if self.buttons[self.selected] == "EXIT":
+                        self.switch_to("exit")
                         return "exit"
 
         # рендер

@@ -29,6 +29,14 @@ pause = Pause()
 battle = Battle()
 settings = Settings()
 
+scenes = {
+    "menu": menu,
+    "game": game,
+    "pause": pause,
+    "battle": battle,
+    "settings": settings
+}
+
 prev_state = state
 settings_from = "menu"
 
@@ -43,60 +51,49 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    if isinstance(state,tuple):
-        new_state, from_state = state
-
-        if new_state == "settings":
-            settings_from = from_state
-            state = "settings"
 
     # переключение сцен
-    if state == "menu":
-        state = menu.update(screen, keys, events)
+    scene = scenes.get(state)
 
-    elif state == "game":
-        state = game.update(screen, keys, events, dt)
+    if scene:
+        result = scene.update(screen, keys, events, dt)
 
-    elif state == "pause":
-        state = pause.update(screen, keys, events)
+    else:
+        result = None
+    
+    if isinstance(result, tuple):
 
-    elif state == "battle":
-        state = battle.update(screen, keys, events, dt)
+        # settings
+        if result[0] == "settings":
+            _, from_state = result
+            settings_from = from_state
+            state = "settings"
+        
+        # apply settings
+        elif result[0] == "apply":
+            _, data = result
+            w, h = data
 
+            screen = pygame.display.set_mode((w, h))
 
-    elif state == "settings":
-        result = settings.update(screen, keys, events)
+            menu.update_fonts()
+            battle.update_fonts()
+            pause.update_fonts()
+            settings.update_fonts()
 
-        if result == "close":
             state = settings_from
 
-        elif isinstance(result, tuple):
-            action, data = result
+    elif result == "close":
+        state = settings_from
 
-            if action == "apply":
-                w, h = data
-                screen = pygame.display.set_mode((w, h))
-
-                menu.update_fonts()
-                battle.update_fonts()
-                pause.update_fonts()
-                settings.update_fonts()
-
-                state = settings_from
-
-    elif state == "exit":
+    elif result == "exit":
         running = False
+        
+    elif result is not None:
+        state = result
 
-    if state == "game" and prev_state == "battle":
-        battle.reset()
 
-    if prev_state == "battle" and state == "game":
-
-        if battle.state == "win":
-            game.location.enemies.remove(game.current_enemy)
-            
-        game.in_battle = False
-
+  
 
     # обновление экрана
     pygame.display.update()

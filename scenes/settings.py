@@ -1,9 +1,11 @@
 import pygame
 import os
 
+from scenes.base_scene import Scene
+
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 
-class Settings:
+class Settings(Scene):
 
     def update_fonts(self):
         height = pygame.display.get_surface().get_height()
@@ -26,7 +28,7 @@ class Settings:
 
         self.selected = 0
 
-    def update(self, screen, keys, events):
+    def update(self, screen, keys, events, dt=None):
 
         for event in events:
             if event.type == pygame.KEYDOWN:
