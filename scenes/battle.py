@@ -1,5 +1,4 @@
 import pygame
-import random
 
 from scenes.base_scene import Scene
 
@@ -7,8 +6,8 @@ from scenes.base_scene import Scene
 class Battle(Scene):
 
     def reset(self):
-        self.player_hp = 100
-        self.enemy_hp = 50
+        self.player_stats.reset()
+        self.enemy_stats.reset()
         self.state = "player_turn"
         self.message = "Choose action"
 
@@ -22,18 +21,14 @@ class Battle(Scene):
         self.font = pygame.font.SysFont(None, big)
         self.small = pygame.font.SysFont(None, small)
 
-    def __init__(self):
+    def __init__(self, player, enemy_stats):
+        self.player_stats = player.stats
+        self.enemy_stats = enemy_stats
+
+        self.state = "player_turn"
+        self.message = "Choose action"
 
         self.update_fonts()
-
-        # HP
-        self.player_hp = 100
-        self.enemy_hp = 50
-
-        # состояния боя
-        self.state = "player_turn"  # player_turn / enemy_turn / win / lose
-
-        self.message = "Choose action"
 
     def update(self, screen, keys, events, dt):
 
@@ -44,6 +39,7 @@ class Battle(Scene):
                 # выход всегда доступен
                 if event.key == pygame.K_ESCAPE:
                     return "game"
+                    
                 # выход после боя
                 if self.state in ["win", "lose"]:
                     if event.key == pygame.K_RETURN:
@@ -53,28 +49,32 @@ class Battle(Scene):
                 if self.state == "player_turn":
 
                     if event.key == pygame.K_a:  # ATTACK
-                        damage = random.randint(5, 15)
-                        self.enemy_hp -= damage
-                        self.message = f"You hit enemy: -{damage} HP"
 
-                        if self.enemy_hp <= 0:
+                        damage = self.player_stats.roll_attack()
+                        self.enemy_stats.take_damage(damage)
+
+                        self.message = f"You hit enemy: -{damage}"
+
+                        if  not self.enemy_stats.is_alive() :
                             self.state = "win"
                             self.message = "YOU WIN!"
                         else:
                             self.state = "enemy_turn"
+                
+        # ход врага
+        if self.state == "enemy_turn":
 
-        if self.state not in ["win", "lose"]:
-            # ход врага (автоматический)
-            if self.state == "enemy_turn":
-                damage = random.randint(3, 10)
-                self.player_hp -= damage
-                self.message = f"Enemy hits you: -{damage} HP"
+            damage = self.enemy_stats.roll_attack()
+            self.player_stats.take_damage(damage)
 
-                if self.player_hp <= 0:
-                    self.state = "lose"
-                    self.message = "YOU LOSE!"
-                else:
-                    self.state = "player_turn"
+            self.message = f"Enemy hits you: -{damage}"
+
+            if not self.player_stats.is_alive():
+                self.state = "lose"
+                self.message = "YOU LOSE!"
+            else:
+                self.state = "player_turn"
+
 
         # рендер
         screen.fill((40, 0, 40))
@@ -82,8 +82,8 @@ class Battle(Scene):
         title = self.font.render("BATTLE", True, (255, 255, 255))
         screen.blit(title, (screen.get_width()//2 - 100, 50))
 
-        hp1 = self.small.render(f"PLAYER HP: {self.player_hp}", True, (0, 255, 0))
-        hp2 = self.small.render(f"ENEMY HP: {self.enemy_hp}", True, (255, 0, 0))
+        hp1 = self.small.render(f"PLAYER HP: {self.player_stats.hp}", True, (0, 255, 0))
+        hp2 = self.small.render(f"ENEMY HP: {self.enemy_stats.hp}", True, (255, 0, 0))
 
         screen.blit(hp1, (50, 150))
         screen.blit(hp2, (50, 200))

@@ -1,8 +1,9 @@
 import pygame
 
 class Enemy:
-    def __init__(self, x, y):
+    def __init__(self, x, y, enemy_type):
         self.rect = pygame.Rect(x, y, 40, 40)
+        self.type = enemy_type
 
     def draw(self, screen, camera_x, camera_y):
         rect = pygame.Rect(

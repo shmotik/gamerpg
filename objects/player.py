@@ -1,12 +1,16 @@
 import pygame
 import math
 
+from objects.stats import Stats
+
 class Player:
     def __init__(self):
         self.x = 100
         self.y = 100
         self.size = 50
         self.speed = 300
+
+        self.stats = Stats(hp=100, attack_values=[8, 10, 12], defense=3)
 
     def move(self, keys, dt, walls, world_width, world_height):
         dx, dy = 0, 0

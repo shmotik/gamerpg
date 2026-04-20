@@ -2,14 +2,30 @@ from objects.player import Player
 from world.locations import LOCATIONS
 from world.location1 import Location1
 from scenes.base_scene import Scene
+from objects.enemies.enemy_types import ENEMY_TYPES
+from objects.stats import Stats
+from scenes.battle import Battle
 
 import pygame
 
+
+
 class Game(Scene):
+
     def __init__(self):
         self.player = Player()
         self.location = Location1()
         self.in_battle = False
+
+    def update_fonts(self):
+        screen = pygame.display.get_surface()
+        height = screen.get_height()
+
+        size_big = int(height * 0.08)
+        size_small = int(height * 0.05)
+
+        self.font = pygame.font.SysFont(None, size_big)
+        self.small = pygame.font.SysFont(None, size_small)
 
     def update(self, screen, keys, events, dt):
 
@@ -46,10 +62,18 @@ class Game(Scene):
                 if not self.in_battle:
                     self.in_battle = True
 
+                    enemy_data = ENEMY_TYPES[enemy.type]
+
+                    self.battle_enemy_stats = Stats(
+                        enemy_data.stats.max_hp,
+                        enemy_data.stats.attack_values,
+                        enemy_data.stats.defense
+                    )
+
                     # удалить врага
                     self.current_enemy = enemy
 
-                    return "battle"
+                    return ("battle", self.battle_enemy_stats)
 
         for exit in self.location.exits:
             if player_rect.colliderect(exit["rect"]):

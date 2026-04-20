@@ -11,36 +11,34 @@ pygame.display.set_caption("My Game")
 
 clock = pygame.time.Clock()
 
-# состояние игры
+# состояние
 state = "menu"
 running = True
 
-# подключаем сцены
+# сцены
 from scenes.menu import Menu
 from scenes.game import Game
 from scenes.pause import Pause
-from scenes.battle import Battle
 from scenes.settings import Settings
+from scenes.battle import Battle
 
-# создаем сцены
 menu = Menu()
 game = Game()
 pause = Pause()
-battle = Battle()
 settings = Settings()
+
+battle = None
 
 scenes = {
     "menu": menu,
     "game": game,
     "pause": pause,
-    "battle": battle,
-    "settings": settings
 }
 
-prev_state = state
 settings_from = "menu"
 
-# главный игровой цикл
+
+# ================= MAIN LOOP =================
 while running:
 
     dt = clock.tick(60) / 1000
@@ -51,54 +49,90 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    result = None
 
-    # переключение сцен
-    scene = scenes.get(state)
 
-    if scene:
-        result = scene.update(screen, keys, events, dt)
+    # ================= SETTINGS (OVERLAY) =================
+    if state == "settings":
 
+        result = settings.update(screen, keys, events, settings_from)
+
+        if isinstance(result, tuple):
+            action, data = result
+
+            # применить разрешение
+            if action == "apply":
+                w, h = data
+                screen = pygame.display.set_mode((w, h))
+
+                menu.update_fonts()
+                game.update_fonts()
+                pause.update_fonts()
+                settings.update_fonts()
+
+                if battle:
+                    battle.update_fonts()
+
+                state = settings_from
+
+
+            # вернуться назад
+            elif action == "back":
+                state = settings_from
+
+
+            # остаться в settings
+            elif action == "stay":
+                state = "settings"
+
+
+    # ================= BATTLE (ОТДЕЛЬНО) =================
+    elif state == "battle":
+        if battle:
+            result = battle.update(screen, keys, events, dt)
+
+    # ================= ОБЫЧНЫЕ СЦЕНЫ =================
     else:
-        result = None
-    
+        scene = scenes.get(state)
+
+        if scene:
+            result = scene.update(screen, keys, events, dt)
+
+
+    # ================= ОБРАБОТКА РЕЗУЛЬТАТОВ =================
+
     if isinstance(result, tuple):
 
-        # settings
+        # вход в settings
         if result[0] == "settings":
             _, from_state = result
             settings_from = from_state
             state = "settings"
-        
-        # apply settings
-        elif result[0] == "apply":
-            _, data = result
-            w, h = data
 
-            screen = pygame.display.set_mode((w, h))
 
-            menu.update_fonts()
-            battle.update_fonts()
-            pause.update_fonts()
-            settings.update_fonts()
+        # вход в battle
+        elif result[0] == "battle":
+            _, enemy_stats = result
 
-            state = settings_from
+            battle = Battle(game.player, enemy_stats)
+            state = "battle"
 
-    elif result == "close":
-        state = settings_from
 
     elif result == "exit":
         running = False
-        
-    elif result is not None:
+
+    elif isinstance(result, str):
+
+        if state =="battle" and result == "game":
+            game.in_battle = False
+
+            if hasattr(game, "current_enemy"):
+                if game.current_enemy in game.location.enemies:
+                    game.location.enemies.remove(game.current_enemy)
+                    
         state = result
 
 
-  
-
-    # обновление экрана
     pygame.display.update()
 
-    prev_state = state
-
 pygame.quit()
-

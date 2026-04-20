@@ -4,6 +4,7 @@ from objects.wall import Wall
 from objects.npc import NPC
 from objects.enemy import Enemy
 
+
 class Location1:
     def __init__(self):
 
@@ -20,7 +21,8 @@ class Location1:
         ]
 
         self.enemies = [
-            Enemy(600, 200)
+            Enemy(600, 200, "slime"),
+            Enemy(800, 400, "goblin")
         ]
 
         self.exits = [
