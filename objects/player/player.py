@@ -2,6 +2,7 @@ import pygame
 import math
 
 from objects.stats import Stats
+from objects.player.inventory import Inventory
 
 class Player:
     def __init__(self):
@@ -11,6 +12,8 @@ class Player:
         self.speed = 300
 
         self.stats = Stats(hp=100, attack_values=[8, 10, 12], defense=3)
+
+        self.inventory = Inventory()
 
     def move(self, keys, dt, walls, world_width, world_height):
         dx, dy = 0, 0

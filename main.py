@@ -1,5 +1,6 @@
 import pygame
 import os
+import random
 
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
@@ -15,23 +16,29 @@ clock = pygame.time.Clock()
 state = "menu"
 running = True
 
+from objects.items.item_drop import ItemDrop
+from objects.enemies.enemy_types import ENEMY_TYPES
+
 # сцены
 from scenes.menu import Menu
 from scenes.game import Game
 from scenes.pause import Pause
 from scenes.settings import Settings
 from scenes.battle import Battle
+from scenes.inventory_scene import InventoryScene
 
 menu = Menu()
 game = Game()
 pause = Pause()
 settings = Settings()
+inventory = InventoryScene(game.player)
 
 battle = None
 
 scenes = {
     "menu": menu,
     "game": game,
+    "inventory": inventory,
     "pause": pause,
 }
 
@@ -127,6 +134,16 @@ while running:
             game.in_battle = False
 
             if hasattr(game, "current_enemy"):
+                enemy = game.current_enemy
+                enemy_type = ENEMY_TYPES[enemy.type]
+
+                for drop_func, chance in enemy_type.drops:
+                    if random.random() < chance:
+                        item = drop_func()
+                        game.player.inventory.add(item)
+
+                        print(f"Loot: {item.name}")
+
                 if game.current_enemy in game.location.enemies:
                     game.location.enemies.remove(game.current_enemy)
                     

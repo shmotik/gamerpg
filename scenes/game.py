@@ -1,4 +1,4 @@
-from objects.player import Player
+from objects.player.player import Player
 from world.locations import LOCATIONS
 from world.location1 import Location1
 from scenes.base_scene import Scene
@@ -41,6 +41,15 @@ class Game(Scene):
         camera_x = min(camera_x, self.location.width - screen_width)
         camera_y = min(camera_y, self.location.height - screen_height)
 
+        player_rect = pygame.Rect(self.player.x, self.player.y, 32, 32)
+
+        # дроп
+        for item in self.location.items[:]:
+            if player_rect.colliderect(item.rect):
+                self.player.inventory.add(item.item)
+                self.location.items.remove(item)
+                print(f"picked up {item.item.name}")
+
         # движение игрока
         self.player.move(keys, dt, self.location.walls, self.location.width, self.location.height)
         
@@ -52,6 +61,8 @@ class Game(Scene):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return "pause"
+                if event.key == pygame.K_i:
+                    return "inventory"
 
         #столкновение с врагом
         player_rect = pygame.Rect(self.player.x, self.player.y, self.player.size, self.player.size)
@@ -94,6 +105,9 @@ class Game(Scene):
 
         for npc in self.location.npcs:
             npc.draw(screen, camera_x, camera_y)
+
+        for item in self.location.items:
+            item.draw(screen, camera_x, camera_y)
 
         self.player.draw(screen, camera_x, camera_y)
 

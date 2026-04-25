@@ -3,6 +3,8 @@ import pygame
 from objects.wall import Wall
 from objects.npc import NPC
 from objects.enemy import Enemy
+from objects.items.item_drop import ItemDrop
+from objects.items.database import get_potion
 
 
 class Location1:
@@ -10,6 +12,10 @@ class Location1:
 
         self.width = 2000
         self.height = 2000
+
+        self.items = [
+            ItemDrop(700, 300, get_potion())
+        ]
 
         self.walls = [
             Wall(300, 200, 200, 50),

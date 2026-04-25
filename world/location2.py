@@ -1,17 +1,17 @@
 import pygame
 
+from world.Baselocation import Baselocation
 
 
 
 
-class Location2:
+
+class Location2(Baselocation):
     def __init__(self):
+        super().__init__()
+
         self.width = 2000
         self.height = 2000
-
-        self.walls = []
-        self.enemies = []
-        self.npcs = []
 
         self.exits = [
             {

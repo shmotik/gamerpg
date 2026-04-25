@@ -30,6 +30,14 @@ class Battle(Scene):
 
         self.update_fonts()
 
+        self.actions = ["Attack", "Defend", "Run"]
+        self.selected = 0
+
+        self.defending = False
+
+        self.up_keys = [pygame.K_UP, pygame.K_w]
+        self.down_keys = [pygame.K_DOWN, pygame.K_s]
+
     def update(self, screen, keys, events, dt):
 
         #переключение сцен
@@ -48,23 +56,50 @@ class Battle(Scene):
                 #ход игрока
                 if self.state == "player_turn":
 
-                    if event.key == pygame.K_a:  # ATTACK
+                    if event.key in self.up_keys:
+                        self.selected -= 1
 
-                        damage = self.player_stats.roll_attack()
-                        self.enemy_stats.take_damage(damage)
+                    if event.key in self.down_keys:
+                        self.selected += 1
 
-                        self.message = f"You hit enemy: -{damage}"
+                    if self.selected < 0:
+                        self.selected = len(self.actions) - 1
+                    if self.selected >= len(self.actions):
+                        self.selected = 0
 
-                        if  not self.enemy_stats.is_alive() :
-                            self.state = "win"
-                            self.message = "YOU WIN!"
-                        else:
+                    elif event.key == pygame.K_RETURN:
+                        action = self.actions[self.selected] 
+
+                        if action == "Attack":
+                            damage = self.player_stats.roll_attack()
+                            self.enemy_stats.take_damage(damage)
+
+                            self.message = f"You hit enemy: -{damage}"
+
+                            if not self.enemy_stats.is_alive():
+                                self.state = "win"
+                                self.message = "YOU WIN!"
+                            else:
+                                self.state = "enemy_turn"
+
+                        elif action == "Defend":
+                            self.defending = True
+                            self.message = "You defend!"
                             self.state = "enemy_turn"
+
+                        elif action == "Run":
+                            self.message = "You ran away!"
+                            return "game"
                 
         # ход врага
         if self.state == "enemy_turn":
 
             damage = self.enemy_stats.roll_attack()
+
+            if self.defending:
+                damage //= 2
+                self.defending = False
+
             self.player_stats.take_damage(damage)
 
             self.message = f"Enemy hits you: -{damage}"
@@ -94,14 +129,19 @@ class Battle(Scene):
         # подсказки
         hint_text = None
 
-        if self.state == "player_turn":
-            hint_text = "A - ATTACK"
-
-        elif self.state == "enemy_turn":
+        if self.state == "enemy_turn":
             hint_text = "Enemy turn..."
 
         elif self.state in ["win", "lose"]:
             hint_text = "ENTER - continue"
+
+        # меню действий
+        if self.state == "player_turn":
+            for i, action in enumerate(self.actions):
+                color = (255, 255, 0) if i == self.selected else (255, 255, 255)
+
+                text = self.small.render(action, True, color)
+                screen.blit(text, (50, 350 + i * 40))
 
         if hint_text:
             hint = self.small.render(hint_text, True, (255, 255, 255))
