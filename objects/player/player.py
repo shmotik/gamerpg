@@ -11,7 +11,22 @@ class Player:
         self.size = 50
         self.speed = 300
 
-        self.stats = Stats(hp=100, attack_values=[8, 10, 12], defense=3)
+        self.stats = Stats(
+            hp=100, 
+            attack_values=[8, 10, 12], 
+            defense=3,
+            speed=2,
+            extra_stats={
+                "luck":2,
+                "alchemy":1,
+                "smithing":0
+            }
+        )
+
+        self.equipment = {
+            "weapon": None,
+            "armor": None
+        }
 
         self.inventory = Inventory()
 
@@ -71,3 +86,25 @@ class Player:
             )
         )
         screen_width, screen_height = screen.get_size()
+
+    def equip_item(self, item):
+        slot = item.slot
+
+        if slot not in self.equipment:
+            return "Нельзя экипировать"
+
+        old_item = self.equipment[slot]
+
+        # снять старый
+        if old_item and hasattr(old_item, "stat_bonus"):
+            for stat, val in old_item.stat_bonus.items():
+                self.player.stats.remove_bonus(stat, val)
+
+        # надеть новый
+        self.equipment[slot] = item
+
+        if hasattr(item, "stat_bonus"):
+            for stat, val in item.stat_bonus.items():
+                self.player.stats.add_bonus(stat, val)
+
+        return f"Экипировано: {item.name}"

@@ -11,7 +11,12 @@ class EnemyType:
 
 SLIME = EnemyType(
     "slime",
-    Stats(hp=30, attack_values = [4, 5], defense=1),
+    Stats(
+        hp=30, 
+        attack_values = [4, 5], 
+        defense=1,
+        extra_stats={"luck":0}
+    ),
     drops = [(get_potion, 0.7),]
 )
 

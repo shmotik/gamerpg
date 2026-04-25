@@ -5,6 +5,7 @@ from scenes.base_scene import Scene
 from objects.enemies.enemy_types import ENEMY_TYPES
 from objects.stats import Stats
 from scenes.battle import Battle
+from ui.message_log import MessageLog
 
 import pygame
 
@@ -16,8 +17,11 @@ class Game(Scene):
         self.player = Player()
         self.location = Location1()
         self.in_battle = False
+        self.messages = MessageLog()
 
     def update_fonts(self):
+        self.messages.update(dt)
+        
         screen = pygame.display.get_surface()
         height = screen.get_height()
 
