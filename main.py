@@ -31,14 +31,12 @@ menu = Menu()
 game = Game()
 pause = Pause()
 settings = Settings()
-inventory = InventoryScene(game.player)
 
 battle = None
 
 scenes = {
     "menu": menu,
     "game": game,
-    "inventory": inventory,
     "pause": pause,
 }
 
@@ -119,10 +117,16 @@ while running:
 
         # вход в battle
         elif result[0] == "battle":
-            _, enemy_stats = result
+            _, enemy_stats, messages = result
 
-            battle = Battle(game.player, enemy_stats)
+            battle = Battle(game.player, enemy_stats, messages)
             state = "battle"
+
+        elif result[0] == "inventory":
+            _, player, messages = result
+            inventory = InventoryScene(player, messages)
+            scenes["inventory"] = inventory
+            state = "inventory"
 
 
     elif result == "exit":
@@ -142,7 +146,8 @@ while running:
                         item = drop_func()
                         game.player.inventory.add(item)
 
-                        print(f"Loot: {item.name}")
+                        game.messages.add(f"Вы победили {enemy.type}!", color=(255,250,0))
+                        game.messages.add(f"Вы получили {item.name}", color=(0,255,0))
 
                 if game.current_enemy in game.location.enemies:
                     game.location.enemies.remove(game.current_enemy)

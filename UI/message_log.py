@@ -4,10 +4,11 @@ class MessageLog:
     def __init__(self):
         self.messages = []
 
-    def add(self, text, duration=3):
+    def add(self, text, duration=3, color = (255,255,255)):
         self.messages.append({
             "text": text,
-            "time": duration
+            "time": duration,
+            "color": color
         })
 
     def update(self, dt):
@@ -21,6 +22,6 @@ class MessageLog:
         y = 500  # позиция (можешь менять)
 
         for msg in self.messages:
-            text = font.render(msg["text"], True, (255, 255, 255))
+            text = font.render(msg["text"], True, msg["color"])
             screen.blit(text, (50, y))
-            y -= 30
+            y += 30

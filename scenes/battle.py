@@ -21,7 +21,9 @@ class Battle(Scene):
         self.font = pygame.font.SysFont(None, big)
         self.small = pygame.font.SysFont(None, small)
 
-    def __init__(self, player, enemy_stats):
+    def __init__(self, player, enemy_stats, messages):
+        self.messages = messages
+
         self.player_stats = player.stats
         self.enemy_stats = enemy_stats
 
@@ -79,6 +81,7 @@ class Battle(Scene):
                             if not self.enemy_stats.is_alive():
                                 self.state = "win"
                                 self.message = "YOU WIN!"
+                                self.messages.add("Враг повержен")
                             else:
                                 self.state = "enemy_turn"
 

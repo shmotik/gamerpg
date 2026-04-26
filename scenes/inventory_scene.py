@@ -2,12 +2,13 @@ import pygame
 from scenes.base_scene import Scene
 
 class InventoryScene(Scene):
-    def __init__(self, player):
+    def __init__(self, player, messages=None):
         self.tabs = ["inventory", "equipment", "stats"]
         self.tab_index = 0
         self.tab = self.tabs[self.tab_index]
 
         self.player = player
+        self.messages = messages
         self.selected = 0
 
         self.font = pygame.font.SysFont(None, 50)
@@ -28,30 +29,30 @@ class InventoryScene(Scene):
                     self.tab_index = (self.tab_index + 1) % len(self.tabs)
                     self.tab = self.tabs[self.tab_index]
 
-                elif self.tab == "inventory":
-                    if event.key == pygame.K_UP and self.player.inventory.items:
-                        self.selected = (self.selected - 1) % len(self.player.inventory.items)
+                elif event.key == pygame.K_UP and self.tab == "inventory" and self.player.inventory.items:
+                    self.selected = (self.selected - 1) % len(self.player.inventory.items)
 
-                    elif event.key == pygame.K_DOWN and self.player.inventory.items:
-                        self.selected = (self.selected + 1) % len(self.player.inventory.items)
+                elif event.key == pygame.K_DOWN and self.tab == "inventory" and self.player.inventory.items:
+                    self.selected = (self.selected + 1) % len(self.player.inventory.items)
 
-                elif event.key == pygame.K_RETURN:
-                    if self.tab == "inventory":
-                        items = self.player.inventory.items
+                elif event.key == pygame.K_RETURN and self.tab == "inventory":
+                    items = self.player.inventory.items
 
-                        if not items:
-                            return "inventory"
+                    if not items:
+                        return "inventory"
 
-                        item = items[self.selected]
+                    item = items[self.selected]
 
-                        if hasattr(item, "slot") and item.slot:
-                            result = self.player.equip_item(item)
-                            print(result)
-                        else:
-                            result = item.use(self.player)
-                            print(result)
-                            self.player.inventory.remove(item)
-                            self.selected = max(0, self.selected - 1)
+                    if hasattr(item, "slot") and item.slot:
+                        result = self.player.equip_item(item)
+                        self.messages.add(result)
+                    else:
+                        result = item.use(self.player)
+                        self.messages.add(f"Использовано: {item.name}")
+                        self.messages.add(result)
+
+                        self.player.inventory.remove(item)
+                        self.selected = max(0, self.selected - 1)
 
 
         screen.fill((20, 20, 20))

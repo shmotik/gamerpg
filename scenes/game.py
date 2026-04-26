@@ -5,7 +5,7 @@ from scenes.base_scene import Scene
 from objects.enemies.enemy_types import ENEMY_TYPES
 from objects.stats import Stats
 from scenes.battle import Battle
-from ui.message_log import MessageLog
+from UI.message_log import MessageLog
 
 import pygame
 
@@ -32,6 +32,7 @@ class Game(Scene):
         self.small = pygame.font.SysFont(None, size_small)
 
     def update(self, screen, keys, events, dt):
+        self.messages.update(dt)
 
         # камера
         screen_width, screen_height = screen.get_size()
@@ -52,7 +53,7 @@ class Game(Scene):
             if player_rect.colliderect(item.rect):
                 self.player.inventory.add(item.item)
                 self.location.items.remove(item)
-                print(f"picked up {item.item.name}")
+                self.messages.add(f'Вы получили: {item.item.name}')
 
         # движение игрока
         self.player.move(keys, dt, self.location.walls, self.location.width, self.location.height)
@@ -66,7 +67,7 @@ class Game(Scene):
                 if event.key == pygame.K_ESCAPE:
                     return "pause"
                 if event.key == pygame.K_i:
-                    return "inventory"
+                    return ("inventory", self.player, self.messages)
 
         #столкновение с врагом
         player_rect = pygame.Rect(self.player.x, self.player.y, self.player.size, self.player.size)
@@ -88,7 +89,7 @@ class Game(Scene):
                     # удалить врага
                     self.current_enemy = enemy
 
-                    return ("battle", self.battle_enemy_stats)
+                    return ("battle", self.battle_enemy_stats, self.messages)
 
         for exit in self.location.exits:
             if player_rect.colliderect(exit["rect"]):
@@ -126,5 +127,7 @@ class Game(Scene):
                     exit["rect"].height
                 )
             )
+
+        self.messages.draw(screen)
 
         return "game"
