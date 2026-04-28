@@ -1,8 +1,9 @@
 class Item:
-    def __init__(self, name, item_type, value=0, description="", stat_bonus=None):
+    def __init__(self, name, item_type, value=0, description="", stat_bonus=None, slot=None):
         self.name = name
         self.type = item_type
         self.value = value
+        self.slot = slot
 
         self.stat_bonus = stat_bonus or {}
 

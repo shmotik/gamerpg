@@ -29,6 +29,7 @@ from scenes.inventory_scene import InventoryScene
 
 menu = Menu()
 game = Game()
+game.update_fonts()
 pause = Pause()
 settings = Settings()
 
@@ -139,7 +140,7 @@ while running:
 
             if hasattr(game, "current_enemy"):
                 enemy = game.current_enemy
-                enemy_type = ENEMY_TYPES[enemy.type]
+                enemy_type = enemy.data
 
                 for drop_func, chance in enemy_type.drops:
                     if random.random() < chance:
@@ -149,8 +150,7 @@ while running:
                         game.messages.add(f"Вы победили {enemy.type}!", color=(255,250,0))
                         game.messages.add(f"Вы получили {item.name}", color=(0,255,0))
 
-                if game.current_enemy in game.location.enemies:
-                    game.location.enemies.remove(game.current_enemy)
+                game.current_enemy.die()
                     
         state = result
 

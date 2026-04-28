@@ -5,31 +5,35 @@ class Stats:
         self.max_hp = hp
         self.hp = hp
 
-        self.attack_values = attack_values
-
-        self.defense = defense
-        self.speed = speed
+        self.base_attack = attack_values[:]   # база
+        self.base_defense = defense
+        self.base_speed = speed
 
         self.extra = extra_stats or {}
 
+        # ВСЕ бонусы в одном месте
         self.bonus = {}
 
     def roll_attack(self):
-        base = random.choice(self.attack_values)
+        base = random.choice(self.base_attack)
         base += self.bonus.get("attack", 0)
 
         if self.get("luck") > 0:
             if random.random() < self.get("luck") * 0.05:
                 return int(base * 1.5)
+
         return base
 
     def take_damage(self, damage):
-        real_damage = max(1, damage - self.defense)
+        real_damage = max(1, damage - self.get("defense"))
         self.hp = max(0, self.hp - real_damage)
 
     def get_attack_range(self):
         bonus = self.bonus.get("attack", 0)
-        return min(self.attack_values), max(self.attack_values)
+        return (
+            min(self.base_attack) + bonus,
+            max(self.base_attack) + bonus
+        )
 
     def is_alive(self):
         return self.hp > 0
@@ -39,11 +43,11 @@ class Stats:
 
     def get(self, stat):
         if stat == "defense":
-            base = self.defense
+            base = self.base_defense
         elif stat == "speed":
-            base = self.speed
+            base = self.base_speed
         else:
-            base = self.extra.get(stat, 0) 
+            base = self.extra.get(stat, 0)
 
         return base + self.bonus.get(stat, 0)
 

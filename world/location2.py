@@ -3,9 +3,6 @@ import pygame
 from world.Baselocation import Baselocation
 
 
-
-
-
 class Location2(Baselocation):
     def __init__(self):
         super().__init__()

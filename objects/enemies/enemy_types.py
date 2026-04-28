@@ -15,6 +15,7 @@ SLIME = EnemyType(
         hp=30, 
         attack_values = [4, 5], 
         defense=1,
+        speed=3,
         extra_stats={"luck":0}
     ),
     drops = [(get_potion, 0.7),]
@@ -22,7 +23,7 @@ SLIME = EnemyType(
 
 GOBLIN = EnemyType(
     "goblin",
-    Stats(hp=50, attack_values = [7, 8, 9], defense=3),
+    Stats(hp=50, attack_values = [7, 8, 9], defense=3, speed = 6, extra_stats={"luck":0}),
     drops = [(get_potion, 0.5),]
 )
 

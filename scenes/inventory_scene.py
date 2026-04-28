@@ -13,6 +13,8 @@ class InventoryScene(Scene):
 
         self.font = pygame.font.SysFont(None, 50)
 
+        self.selected_equipment = 0
+
     def update(self, screen, keys, events, dt):
 
         for event in events:
@@ -46,6 +48,9 @@ class InventoryScene(Scene):
                     if hasattr(item, "slot") and item.slot:
                         result = self.player.equip_item(item)
                         self.messages.add(result)
+
+                        self.player.inventory.remove(item)
+                        self.selected = max(0, self.selected - 1)
                     else:
                         result = item.use(self.player)
                         self.messages.add(f"Использовано: {item.name}")
@@ -53,7 +58,25 @@ class InventoryScene(Scene):
 
                         self.player.inventory.remove(item)
                         self.selected = max(0, self.selected - 1)
+                
+                elif self.tab == "equipment":
+                    if event.key == pygame.K_UP:
+                        self.selected_equipment = (self.selected_equipment - 1) % len(self.player.equipment)
 
+                    elif event.key == pygame.K_DOWN:
+                        self.selected_equipment = (self.selected_equipment + 1) % len(self.player.equipment)
+
+                    elif event.key == pygame.K_RETURN:
+                        slots = list(self.player.equipment.keys())
+                        slot = slots[self.selected_equipment]
+
+                        item = self.player.equipment[slot]
+
+                        if item:
+                            result = self.player.unequip_item(slot)
+                            self.messages.add(result)
+
+                            self.player.inventory.add(item)
 
         screen.fill((20, 20, 20))
 
@@ -121,8 +144,12 @@ class InventoryScene(Scene):
 
     def draw_equipment(self, screen):
         y = 150
+        slots = list(self.player.equipment.items())
 
-        for slot, item in self.player.equipment.items():
+        for i, (slot, item) in enumerate(slots):
+
+            color = (255, 255, 0) if i == self.selected_equipment else (255, 255, 255)
+
             text = f"{slot}: "
 
             if item:
@@ -130,7 +157,7 @@ class InventoryScene(Scene):
             else:
                 text += "Empty"
 
-            rendered = self.font.render(text, True, (255, 255, 255))
+            rendered = self.font.render(text, True, color)
             screen.blit(rendered, (50, y))
 
             y += 50
@@ -143,8 +170,8 @@ class InventoryScene(Scene):
         stats = [
             ("HP", self.player.stats.hp),
             ("Attack", f"{min_atk} - {max_atk}"),
-            ("Defense", self.player.stats.defense),
-            ("Speed", self.player.stats.speed),
+            ("Defense", self.player.stats.get("defense")),
+            ("Speed", self.player.stats.get("speed")),
         ]
 
         for name, value in stats:

@@ -10,19 +10,22 @@ def get_lucky_charm():
     return Item(
         "lucky_charm",
         "buff",
-        stat_bonus={"luck":3}
+        stat_bonus={"luck":3},
+        slot="charm"
     )
 
 def get_sword():
     return Item(
         "Sword",
         "buff",
-        stat_bonus={"attack": 5}
+        stat_bonus={"attack": 5},
+        slot="weapon"
     )
 
 def get_boots():
     return Item(
         "Boots",
         "buff",
-        stat_bonus={"speed": 2}
+        stat_bonus={"speed": 2},
+        slot="armor"
     )

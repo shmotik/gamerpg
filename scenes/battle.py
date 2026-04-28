@@ -73,46 +73,15 @@ class Battle(Scene):
                         action = self.actions[self.selected] 
 
                         if action == "Attack":
-                            damage = self.player_stats.roll_attack()
-                            self.enemy_stats.take_damage(damage)
-
-                            self.message = f"You hit enemy: -{damage}"
-
-                            if not self.enemy_stats.is_alive():
-                                self.state = "win"
-                                self.message = "YOU WIN!"
-                                self.messages.add("Враг повержен")
-                            else:
-                                self.state = "enemy_turn"
+                                self.execute_round()
 
                         elif action == "Defend":
                             self.defending = True
-                            self.message = "You defend!"
-                            self.state = "enemy_turn"
+                            self.messages.add("Вы защищаетесь")
 
                         elif action == "Run":
-                            self.message = "You ran away!"
+                            self.messages.add("Вы сбежали")
                             return "game"
-                
-        # ход врага
-        if self.state == "enemy_turn":
-
-            damage = self.enemy_stats.roll_attack()
-
-            if self.defending:
-                damage //= 2
-                self.defending = False
-
-            self.player_stats.take_damage(damage)
-
-            self.message = f"Enemy hits you: -{damage}"
-
-            if not self.player_stats.is_alive():
-                self.state = "lose"
-                self.message = "YOU LOSE!"
-            else:
-                self.state = "player_turn"
-
 
         # рендер
         screen.fill((40, 0, 40))
@@ -132,10 +101,7 @@ class Battle(Scene):
         # подсказки
         hint_text = None
 
-        if self.state == "enemy_turn":
-            hint_text = "Enemy turn..."
-
-        elif self.state in ["win", "lose"]:
+        if self.state in ["win", "lose"]:
             hint_text = "ENTER - continue"
 
         # меню действий
@@ -150,4 +116,61 @@ class Battle(Scene):
             hint = self.small.render(hint_text, True, (255, 255, 255))
             screen.blit(hint, (50, 450))
 
+        self.messages.update(dt)
+        self.messages.draw(screen)
+
         return "battle"
+
+    def get_turns(self, speed_a, speed_b):
+        ratio = speed_a / max(1, speed_b)
+        return max(1, int(ratio))
+
+    def execute_round(self):
+        player_speed = self.player_stats.get("speed")
+        enemy_speed = self.enemy_stats.get("speed")
+
+        player_turns = self.get_turns(player_speed, enemy_speed)
+        enemy_turns = self.get_turns(enemy_speed, player_speed)
+
+        if player_speed >= enemy_speed:
+            self.player_attack(player_turns)
+            if self.enemy_stats.is_alive():
+                self.enemy_attack(enemy_turns)
+        else:
+            self.enemy_attack(enemy_turns)
+            if self.player_stats.is_alive():
+                self.player_attack(player_turns)
+
+        # проверка конца боя
+        if not self.enemy_stats.is_alive():
+            self.state = "win"
+            self.messages.add("Враг повержен")
+        elif not self.player_stats.is_alive():
+            self.state = "lose"
+            self.messages.add("Вы проиграли")
+        else:
+            self.state = "player_turn"
+
+    def player_attack(self, turns):
+        for _ in range(turns):
+            if not self.enemy_stats.is_alive():
+                break
+
+            dmg = self.player_stats.roll_attack()
+            self.enemy_stats.take_damage(dmg)
+            self.messages.add(f"Вы нанесли {dmg} урона")
+
+    def enemy_attack(self, turns):
+        for _ in range(turns):
+            if not self.player_stats.is_alive():
+                break
+
+            dmg = self.enemy_stats.roll_attack()
+
+            if self.defending:
+                dmg //= 2
+
+            self.player_stats.take_damage(dmg)
+            self.messages.add(f"Враг нанес {dmg} урона")
+
+        self.defending = False

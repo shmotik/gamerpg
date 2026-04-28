@@ -2,9 +2,11 @@ import pygame
 
 from objects.wall import Wall
 from objects.npc import NPC
-from objects.enemy import Enemy
+from objects.enemies.enemy import Enemy
+from objects.enemies.enemy_types import ENEMY_TYPES
 from objects.items.item_drop import ItemDrop
 from objects.items.database import get_potion
+from objects.items.database import get_sword
 
 
 class Location1:
@@ -14,7 +16,8 @@ class Location1:
         self.height = 2000
 
         self.items = [
-            ItemDrop(700, 300, get_potion())
+            ItemDrop(700, 300, get_potion()),
+            ItemDrop(700, 400, get_sword())
         ]
 
         self.walls = [
@@ -27,8 +30,8 @@ class Location1:
         ]
 
         self.enemies = [
-            Enemy(600, 200, "slime"),
-            Enemy(800, 400, "goblin")
+            Enemy(600, 200, ENEMY_TYPES["slime"]),
+            Enemy(400, 300, ENEMY_TYPES["goblin"])
         ]
 
         self.exits = [

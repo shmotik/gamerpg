@@ -30,6 +30,15 @@ class Player:
 
         self.inventory = Inventory()
 
+    @property
+    def hp(self):
+        return self.stats.hp
+
+    @property
+    def max_hp(self):
+        return self.stats.max_hp
+
+
     def move(self, keys, dt, walls, world_width, world_height):
         dx, dy = 0, 0
 
@@ -88,23 +97,39 @@ class Player:
         screen_width, screen_height = screen.get_size()
 
     def equip_item(self, item):
-        slot = item.slot
+        slot = item.slot.lower()
 
         if slot not in self.equipment:
-            return "Нельзя экипировать"
+            return f"Нельзя экипировать в слот: {slot}"
 
         old_item = self.equipment[slot]
 
         # снять старый
         if old_item and hasattr(old_item, "stat_bonus"):
             for stat, val in old_item.stat_bonus.items():
-                self.player.stats.remove_bonus(stat, val)
+                self.stats.remove_bonus(stat, val)
+
+            self.equipment[slot] = item
 
         # надеть новый
         self.equipment[slot] = item
 
         if hasattr(item, "stat_bonus"):
             for stat, val in item.stat_bonus.items():
-                self.player.stats.add_bonus(stat, val)
+                self.stats.add_bonus(stat, val)
 
         return f"Экипировано: {item.name}"
+
+    def unequip_item(self, slot):
+        item = self.equipment.get(slot)
+
+        if not item:
+            return "Нечего снимать"
+
+        if hasattr(item, "stat_bonus"):
+            for stat, val in item.stat_bonus.items():
+                self.stats.remove_bonus(stat, val)
+
+        self.equipment[slot] = None
+
+        return f"Снято: {item.name}"

@@ -2,7 +2,6 @@ from objects.player.player import Player
 from world.locations import LOCATIONS
 from world.location1 import Location1
 from scenes.base_scene import Scene
-from objects.enemies.enemy_types import ENEMY_TYPES
 from objects.stats import Stats
 from scenes.battle import Battle
 from UI.message_log import MessageLog
@@ -19,9 +18,7 @@ class Game(Scene):
         self.in_battle = False
         self.messages = MessageLog()
 
-    def update_fonts(self):
-        self.messages.update(dt)
-        
+    def update_fonts(self):        
         screen = pygame.display.get_surface()
         height = screen.get_height()
 
@@ -30,6 +27,8 @@ class Game(Scene):
 
         self.font = pygame.font.SysFont(None, size_big)
         self.small = pygame.font.SysFont(None, size_small)
+
+        self.messages.set_font(self.small)
 
     def update(self, screen, keys, events, dt):
         self.messages.update(dt)
@@ -73,23 +72,16 @@ class Game(Scene):
         player_rect = pygame.Rect(self.player.x, self.player.y, self.player.size, self.player.size)
 
         for enemy in self.location.enemies:
-            if player_rect.colliderect(enemy.rect):
+
+            enemy.update(dt, self.location.walls)
+
+            if enemy.alive and player_rect.colliderect(enemy.rect):
 
                 if not self.in_battle:
                     self.in_battle = True
 
-                    enemy_data = ENEMY_TYPES[enemy.type]
-
-                    self.battle_enemy_stats = Stats(
-                        enemy_data.stats.max_hp,
-                        enemy_data.stats.attack_values,
-                        enemy_data.stats.defense
-                    )
-
-                    # удалить врага
                     self.current_enemy = enemy
-
-                    return ("battle", self.battle_enemy_stats, self.messages)
+                    return ("battle", enemy.stats, self.messages)
 
         for exit in self.location.exits:
             if player_rect.colliderect(exit["rect"]):
@@ -128,6 +120,22 @@ class Game(Scene):
                 )
             )
 
+        bar_width = 200
+        bar_height = 20
+
+        hp_ratio = self.player.stats.hp / self.player.stats.max_hp
+        current_width = int(bar_width * hp_ratio)
+
+        # фон (серый)
+        pygame.draw.rect(screen, (60, 60, 60), (10, 40, bar_width, bar_height))
+
+        # здоровье (красный)
+        pygame.draw.rect(screen, (200, 50, 50), (10, 40, current_width, bar_height))
+        
+        hp_text = f"HP: {self.player.stats.hp} / {self.player.stats.max_hp}"
+        text_surface = self.small.render(hp_text, True, (255, 50, 50))
+        screen.blit(text_surface, (10, 10))
+        
         self.messages.draw(screen)
 
         return "game"
