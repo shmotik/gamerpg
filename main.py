@@ -142,6 +142,8 @@ while running:
                 enemy = game.current_enemy
                 enemy_type = enemy.data
 
+                game.on_enemy_killed(enemy)
+
                 for drop_func, chance in enemy_type.drops:
                     if random.random() < chance:
                         item = drop_func()

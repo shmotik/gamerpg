@@ -3,6 +3,7 @@ import math
 
 from objects.stats import Stats
 from objects.player.inventory import Inventory
+from objects.player.player_progress import PlayerProgress
 
 class Player:
     def __init__(self):
@@ -29,6 +30,9 @@ class Player:
         }
 
         self.inventory = Inventory()
+        self.progress = PlayerProgress()
+        self.stats.progress = self.progress
+        self.progress.player = self
 
     @property
     def hp(self):
@@ -108,8 +112,6 @@ class Player:
         if old_item and hasattr(old_item, "stat_bonus"):
             for stat, val in old_item.stat_bonus.items():
                 self.stats.remove_bonus(stat, val)
-
-            self.equipment[slot] = item
 
         # надеть новый
         self.equipment[slot] = item

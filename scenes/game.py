@@ -135,7 +135,47 @@ class Game(Scene):
         hp_text = f"HP: {self.player.stats.hp} / {self.player.stats.max_hp}"
         text_surface = self.small.render(hp_text, True, (255, 50, 50))
         screen.blit(text_surface, (10, 10))
+
+        xp_bar_width = 200
+        xp_bar_height = 10
+
+        xp = self.player.progress.xp
+        xp_next = self.player.progress.xp_to_next()
+
+        xp_ratio = xp / xp_next if xp_next > 0 else 0
+        xp_current_width = int(xp_bar_width * xp_ratio)
+
+        # фон
+        pygame.draw.rect(screen, (50, 50, 80), (10, 65, xp_bar_width, xp_bar_height))
+
+        # XP
+        pygame.draw.rect(screen, (50, 150, 255), (10, 65, xp_current_width, xp_bar_height))
+
+        # текст уровня
+        lvl_text = f"LVL {self.player.progress.level}"
+        lvl_surface = self.small.render(lvl_text, True, (100, 200, 255))
+        screen.blit(lvl_surface, (220, 55))
         
         self.messages.draw(screen)
 
         return "game"
+
+    def on_enemy_killed(self, enemy):
+        enemy_type = enemy.data
+
+        #  опыт
+        xp = enemy_type.xp
+        leveled = self.player.progress.add_xp(xp)
+
+        self.messages.add(f"+{xp} XP", color=(100, 200, 255))
+
+        if leveled:
+            self.messages.add("Уровень повышен!", color=(255, 255, 0))
+
+        #  дроп (заготовка)
+        for drop_func, chance in enemy_type.drops:
+            import random
+            if random.random() <= chance:
+                item = drop_func()
+                self.player.inventory.add(item)
+                self.messages.add(f"Выпал предмет: {item.name}")
