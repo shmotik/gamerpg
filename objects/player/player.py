@@ -4,6 +4,7 @@ import math
 from objects.stats import Stats
 from objects.player.inventory import Inventory
 from objects.player.player_progress import PlayerProgress
+from systems.skills.skill_list import POWER_STRIKE
 
 class Player:
     def __init__(self):
@@ -11,6 +12,8 @@ class Player:
         self.y = 100
         self.size = 50
         self.speed = 300
+
+        self.spawn_point = (self.x, self.y)
 
         self.stats = Stats(
             hp=100, 
@@ -33,6 +36,8 @@ class Player:
         self.progress = PlayerProgress()
         self.stats.progress = self.progress
         self.progress.player = self
+
+        self.skills = [POWER_STRIKE]
 
     @property
     def hp(self):
@@ -135,3 +140,11 @@ class Player:
         self.equipment[slot] = None
 
         return f"Снято: {item.name}"
+
+    def set_spawn(self, x, y):
+        self.spawn_point = (x, y)
+
+    def respawn(self):
+        self.x, self.y = self.spawn_point
+        self.stats.reset()
+        self.stats.mana = self.stats.max_mana

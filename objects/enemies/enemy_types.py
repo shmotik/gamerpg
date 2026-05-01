@@ -8,6 +8,7 @@ class EnemyType:
     stats: Stats
     drops: list
     xp: int
+    ai_type: str
 
 
 SLIME = EnemyType(
@@ -20,14 +21,16 @@ SLIME = EnemyType(
         extra_stats={"luck":0}
     ),
     drops = [(get_potion, 0.7),],
-    xp=20
+    xp=20,
+    ai_type = "wander"
 )
 
 GOBLIN = EnemyType(
     "goblin",
     Stats(hp=50, attack_values = [7, 8, 9], defense=3, speed = 6, extra_stats={"luck":0}),
     drops = [(get_potion, 0.5),],
-    xp=50
+    xp=50,
+    ai_type = "aggressive"
 )
 
 ENEMY_TYPES = {

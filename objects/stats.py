@@ -11,20 +11,42 @@ class Stats:
 
         self.extra = extra_stats or {}
 
+        self.max_mana = 50
+        self.mana = self.max_mana
+
+        self.statuses = []
+        self.temp_stats = {}
+
+        self.stats = {
+            "attack": 0,
+            "defense": defense,
+            "speed": speed,
+            **self.extra
+        }
+
         # ВСЕ бонусы в одном месте
         self.bonus = {}
 
     def roll_attack(self):
+
+        # заморозка — нельзя атаковать
+        for status in self.statuses:
+            if status["name"] == "freeze":
+                return 0
+
         base = random.choice(self.base_attack)
 
-        # бонусы от предметов
         base += self.bonus.get("attack", 0)
 
-        # бонусы от прокачки
         if hasattr(self, "progress"):
             base += self.get_progress_bonus("attack")
 
-        # крит через luck
+        #  горение снижает урон
+        for status in self.statuses:
+            if status["name"] == "burn":
+                base = int(base * 0.8)
+
+        #  крит
         if self.get("luck") > 0:
             if random.random() < self.get("luck") * 0.05:
                 return int(base * 1.5)
@@ -56,23 +78,14 @@ class Stats:
         self.hp = self.max_hp
 
     def get(self, stat):
-        # базовое значение
-        if stat == "defense":
-            base = self.base_defense
-        elif stat == "speed":
-            base = self.base_speed
-        elif stat == "attack":
-            base = 0  # attack считается отдельно (через roll_attack)
-        else:
-            base = self.extra.get(stat, 0)
+        base = self.stats.get(stat, 0)
 
-        # бонусы от предметов
-        bonus = self.bonus.get(stat, 0)
+        bonus = 0
+        if stat in self.temp_stats:
+            for buff in self.temp_stats[stat]:
+                bonus += buff["value"]
 
-        # бонусы от прокачки 
-        progress_bonus = self.get_progress_bonus(stat)
-
-        return base + bonus + progress_bonus
+        return base + bonus
 
     def add_bonus(self, stat, value):
         self.bonus[stat] = self.bonus.get(stat, 0) + value
@@ -80,3 +93,56 @@ class Stats:
     def remove_bonus(self, stat, value):
         if stat in self.bonus:
             self.bonus[stat] -= value
+
+    def restore_mana(self, amount):
+        self.mana = min(self.max_mana, self.mana + amount)
+
+    def add_status(self, name, turns):
+        self.statuses.append({"name": name, "turns": turns})
+
+    def add_temp(self, stat, value, turns):
+        if stat not in self.temp_stats:
+            self.temp_stats[stat] = []
+
+        self.temp_stats[stat].append({
+            "value": value,
+            "turns": turns
+        })
+
+    def process_effects(self, messages=None):
+
+        # СТАТУСЫ
+        for status in self.statuses[:]:
+
+            name = status["name"]
+
+            if name == "poison":
+                dmg = max(1, int(self.max_hp * 0.05))
+                self.hp -= dmg
+
+                if messages:
+                    messages.add(f" Яд наносит {dmg} урона")
+
+            elif name == "burn":
+                dmg = max(1, int(self.max_hp * 0.03))
+                self.hp -= dmg
+
+                if messages:
+                    messages.add(f" Горение наносит {dmg} урона")
+
+            elif name == "regen":
+                heal = max(1, int(self.max_hp * 0.04))
+                self.hp = min(self.max_hp, self.hp + heal)
+
+                if messages:
+                    messages.add(f" Регенерация лечит {heal}")
+
+            elif name == "freeze":
+                # просто эффект, логика будет в бою
+                if messages:
+                    messages.add(" Персонаж заморожен")
+
+            status["turns"] -= 1
+
+            if status["turns"] <= 0:
+                self.statuses.remove(status)

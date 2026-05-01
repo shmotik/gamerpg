@@ -30,8 +30,8 @@ class Location1:
         ]
 
         self.enemies = [
-            Enemy(600, 200, ENEMY_TYPES["slime"]),
-            Enemy(400, 300, ENEMY_TYPES["goblin"])
+            Enemy(600, 200, ENEMY_TYPES["slime"],self),
+            Enemy(400, 300, ENEMY_TYPES["goblin"],self)
         ]
 
         self.exits = [

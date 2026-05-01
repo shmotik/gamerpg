@@ -3,7 +3,7 @@ from world.locations import LOCATIONS
 from world.location1 import Location1
 from scenes.base_scene import Scene
 from objects.stats import Stats
-from scenes.battle import Battle
+from core.battle import Battle
 from UI.message_log import MessageLog
 
 import pygame
@@ -54,6 +54,12 @@ class Game(Scene):
                 self.location.items.remove(item)
                 self.messages.add(f'Вы получили: {item.item.name}')
 
+        # смерть игрока
+        if not self.player.stats.is_alive():
+            self.messages.add("Вы погибли...", color=(255, 50, 50))
+            self.player.respawn()
+            return "game"
+
         # движение игрока
         self.player.move(keys, dt, self.location.walls, self.location.width, self.location.height)
         
@@ -73,6 +79,7 @@ class Game(Scene):
 
         for enemy in self.location.enemies:
 
+            enemy.update_ai(self.player, dt, self.location.walls)
             enemy.update(dt, self.location.walls)
 
             if enemy.alive and player_rect.colliderect(enemy.rect):
@@ -81,7 +88,7 @@ class Game(Scene):
                     self.in_battle = True
 
                     self.current_enemy = enemy
-                    return ("battle", enemy.stats, self.messages)
+                    return ("battle", enemy, self.messages)
 
         for exit in self.location.exits:
             if player_rect.colliderect(exit["rect"]):

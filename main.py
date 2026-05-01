@@ -21,10 +21,10 @@ from objects.enemies.enemy_types import ENEMY_TYPES
 
 # сцены
 from scenes.menu import Menu
-from scenes.game import Game
+from core.game import Game
 from scenes.pause import Pause
 from scenes.settings import Settings
-from scenes.battle import Battle
+from core.battle import Battle
 from scenes.inventory_scene import InventoryScene
 
 menu = Menu()
@@ -120,7 +120,7 @@ while running:
         elif result[0] == "battle":
             _, enemy_stats, messages = result
 
-            battle = Battle(game.player, enemy_stats, messages)
+            battle = Battle(game.player, enemy, messages)
             state = "battle"
 
         elif result[0] == "inventory":
