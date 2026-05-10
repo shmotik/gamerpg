@@ -5,6 +5,8 @@ from scenes.base_scene import Scene
 from objects.stats import Stats
 from core.battle import Battle
 from UI.message_log import MessageLog
+from objects.npc.dialogue import DialogueBox
+from UI.quest_log import QuestLogUI
 
 import pygame
 
@@ -17,6 +19,8 @@ class Game(Scene):
         self.location = Location1()
         self.in_battle = False
         self.messages = MessageLog()
+        self.dialogue = DialogueBox()
+        self.quest_ui = QuestLogUI(self.player)
 
     def update_fonts(self):        
         screen = pygame.display.get_surface()
@@ -73,6 +77,15 @@ class Game(Scene):
                     return "pause"
                 if event.key == pygame.K_i:
                     return ("inventory", self.player, self.messages)
+                if event.key == pygame.K_e:
+                    for npc in self.location.npcs:
+                        if npc.is_near(self.player):
+                            text = npc.interact(self.player)
+                            self.messages.add(text)
+                            break
+
+                    if event.key == pygame.K_SPACE:
+                        self.dialogue.close()
 
         #столкновение с врагом
         player_rect = pygame.Rect(self.player.x, self.player.y, self.player.size, self.player.size)
@@ -165,6 +178,28 @@ class Game(Scene):
         
         self.messages.draw(screen)
 
+        for npc in self.location.npcs:
+            npc.draw(screen, camera_x, camera_y)
+
+            if npc.is_near(self.player):
+                # подсветка
+                rect = pygame.Rect(
+                    npc.x - camera_x,
+                    npc.y - camera_y,
+                    npc.size,
+                    npc.size
+                )
+
+                pygame.draw.rect(screen, (255,255,0), rect, 2)
+
+                # текст "E"
+                text = self.font.render("E - поговорить", True, (255,255,255))
+                screen.blit(text, (npc.x - camera_x, npc.y - 30))
+
+        self.dialogue.draw(screen)
+
+        self.quest_ui.draw(screen)
+
         return "game"
 
     def on_enemy_killed(self, enemy):
@@ -186,3 +221,5 @@ class Game(Scene):
                 item = drop_func()
                 self.player.inventory.add(item)
                 self.messages.add(f"Выпал предмет: {item.name}")
+        
+        self.player.progress.add_kill(enemy_type.name)

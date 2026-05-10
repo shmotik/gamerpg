@@ -2,6 +2,7 @@ import pygame
 
 from scenes.base_scene import Scene
 from systems.combat import calculate_damage
+from UI.battle_log import BattleLog
 
 
 class Battle(Scene):
@@ -10,12 +11,11 @@ class Battle(Scene):
         self.player = player
         self.player_stats = player.stats
         self.enemy = enemy
-        self.enemy_stats = enemy_stats
+        self.enemy_stats = enemy.stats
 
         self.messages = messages
 
         self.state = "player_turn"
-        self.message = "Choose action"
 
         self.update_fonts()
 
@@ -25,6 +25,9 @@ class Battle(Scene):
         self.skill_index = 0
 
         self.defending = False
+
+        self.battle_log = BattleLog()
+        self.message = "Choose action"
 
         self.up_keys = [pygame.K_UP, pygame.K_w]
         self.down_keys = [pygame.K_DOWN, pygame.K_s]
@@ -101,7 +104,7 @@ class Battle(Scene):
                 self.player_action("defend")
 
             elif action == "Run":
-                self.messages.add("Вы сбежали")
+                self.battle_log.add("Вы сбежали")
                 return "game"
 
         self.selected %= len(self.actions)
@@ -129,7 +132,7 @@ class Battle(Scene):
                 can_use, reason = skill.can_use(self.player_stats)
 
                 if not can_use:
-                    self.messages.add(reason)
+                    self.battle_log.add(reason)
                     return
 
                 self.player_action("skill", skill)
@@ -148,14 +151,14 @@ class Battle(Scene):
             damage, result = calculate_damage(self.player_stats, self.enemy_stats)
 
             if result == "DODGE":
-                self.messages.add("Враг уклонился!")
+                self.battle_log.add("Враг уклонился!")
             else:
                 self.enemy_stats.hp -= damage
 
                 if result == "CRIT":
-                    self.messages.add(f"КРИТ! {damage} урона")
+                    self.battle_log.add(f"КРИТ! {damage} урона")
                 else:
-                    self.messages.add(f"Вы нанесли {damage} урона")
+                    self.battle_log.add(f"Вы нанесли {damage} урона")
 
     def enemy_attack(self, turns):
         for _ in range(turns):
@@ -165,7 +168,7 @@ class Battle(Scene):
             damage, result = calculate_damage(self.enemy_stats, self.player_stats)
 
             if result == "DODGE":
-                self.messages.add("Вы уклонились!")
+                self.battle_log.add("Вы уклонились!")
                 continue
 
             if self.defending:
@@ -174,9 +177,9 @@ class Battle(Scene):
             self.player_stats.hp -= damage
 
             if result == "CRIT":
-                self.messages.add(f"Враг критует! {damage} урона")
+                self.battle_log.add(f"Враг критует! {damage} урона")
             else:
-                self.messages.add(f"Враг нанес {damage} урона")
+                self.battle_log.add(f"Враг нанес {damage} урона")
 
         self.defending = False
 
@@ -195,7 +198,7 @@ class Battle(Scene):
             hint = self.small.render("ENTER - continue", True, (255, 255, 255))
             screen.blit(hint, (50, 450))
 
-        self.messages.draw(screen)
+        self.battle_log.draw(screen)
         self.draw_statuses(screen)
 
 
@@ -272,20 +275,20 @@ class Battle(Scene):
         elif action_type == "skill" and skill:
 
             if skill.mana_cost > self.player.mana:
-                self.messages.add("Недостаточно маны!")
+                self.battle_log.add("Недостаточно маны!")
                 return
 
             text = skill.use(self.player_stats, self.enemy_stats)
-            self.messages.add(text)
+            self.battle_log.add(text)
 
         elif action_type == "defend":
             self.defending = True
-            self.messages.add("Вы защищаетесь")
+            self.battle_log.add("Вы защищаетесь")
 
         #  ПРОВЕРКА ПОСЛЕ ХОДА 
         if not self.enemy_stats.is_alive():
             self.state = "win"
-            self.messages.add("Враг повержен")
+            self.battle_log.add("Враг повержен")
             return
 
         #  ХОД ВРАГА 
@@ -302,17 +305,17 @@ class Battle(Scene):
                 self.enemy_attack(1)
 
             elif action == "defend":
-                self.messages.add("Враг защищается")
+                self.battle_log.add("Враг защищается")
 
             elif isinstance(action, tuple):
                 _, skill = action
                 text = skill.use(self.enemy_stats, self.player_stats)
-                self.messages.add(f"Враг использует {skill.name}: {text}")
+                self.battle_log.add(f"Враг использует {skill.name}: {text}")
 
         #  ПРОВЕРКА ПОСЛЕ ВРАГА 
         if not self.player_stats.is_alive():
             self.state = "lose"
-            self.messages.add("Вы проиграли")
+            self.battle_log.add("Вы проиграли")
         else:
             self.state = "player_turn"
 

@@ -20,15 +20,18 @@ class Skill:
         from systems.combat import calculate_damage
 
         # списываем ману
-        user.mana -= self.mana_cost
+        can_use, msg = self.can_use(user)
+        if not can_use:
+            return msg
 
         # ставим кулдаун
         self.current_cd = self.cooldown
 
         damage, result = calculate_damage(user, target)
-        damage = int(damage * self.multiplier)
+        base_damage = user.roll_attack()
+        damage = int(base_damage * self.multiplier)
 
-        target.hp -= damage
+        target.take_damage(damage)
 
         text = f"{self.name}: {damage} урона"
 

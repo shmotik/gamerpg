@@ -118,7 +118,7 @@ while running:
 
         # вход в battle
         elif result[0] == "battle":
-            _, enemy_stats, messages = result
+            _, enemy, messages = result
 
             battle = Battle(game.player, enemy, messages)
             state = "battle"

@@ -1,16 +1,25 @@
 import pygame
 
 from objects.wall import Wall
-from objects.npc import NPC
+from objects.npc.npc import NPC
 from objects.enemies.enemy import Enemy
 from objects.enemies.enemy_types import ENEMY_TYPES
 from objects.items.item_drop import ItemDrop
 from objects.items.database import get_potion
 from objects.items.database import get_sword
+from systems.quest import Quest, KillObjective
+from systems.rewards import RewardSkill
+from systems.skills.skill_list import POISON_STRIKE
 
 
 class Location1:
     def __init__(self):
+
+        quest = Quest(
+            "Помощь алхимику",
+            objectives=[KillObjective("slime", 5)],
+            rewards=[RewardSkill(POISON_STRIKE)]
+        )
 
         self.width = 2000
         self.height = 2000
@@ -26,7 +35,7 @@ class Location1:
         ]
 
         self.npcs = [
-            NPC(500, 300)
+            NPC(500, 300, "Привет, помоги мне...", quest)
         ]
 
         self.enemies = [
@@ -41,3 +50,5 @@ class Location1:
                 "spawn":(100, 900)
             }
         ]
+
+        

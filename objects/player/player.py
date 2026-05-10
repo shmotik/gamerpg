@@ -47,6 +47,14 @@ class Player:
     def max_hp(self):
         return self.stats.max_hp
 
+    @property
+    def mana(self):
+        return self.stats.mana
+
+    @property
+    def max_mana(self):
+        return self.stats.max_mana
+
 
     def move(self, keys, dt, walls, world_width, world_height):
         dx, dy = 0, 0

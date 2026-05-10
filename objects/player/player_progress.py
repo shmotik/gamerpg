@@ -22,6 +22,16 @@ class PlayerProgress:
             "smithing": "craft"
         }
 
+        self.quests = []
+
+        # ОБЩАЯ статистика (вся игра)
+        self.total_kills = {}
+        self.total_items = {}
+
+        # ДЛЯ КВЕСТОВ (с момента взятия)
+        self.quest_kills = {}
+        self.quest_items = {}
+
     def xp_to_next(self):
         return int(100 * (self.level ** 1.5))
 
@@ -49,3 +59,22 @@ class PlayerProgress:
         self.stat_points -= 1
 
         return True
+
+    def add_kill(self, enemy_type):
+        # общая статистика
+        self.total_kills[enemy_type] = self.total_kills.get(enemy_type, 0) + 1
+
+        # квестовая
+        self.quest_kills[enemy_type] = self.quest_kills.get(enemy_type, 0) + 1
+
+    def add_item(self, item_name):
+        self.total_items[item_name] = self.total_items.get(item_name, 0) + 1
+        self.quest_items[item_name] = self.quest_items.get(item_name, 0) + 1
+
+    def add_quest(self, quest):
+        if quest not in self.quests:
+            self.quests.append(quest)
+
+            #  сбрасываем ТОЛЬКО квестовый прогресс
+            self.quest_kills = {}
+            self.quest_items = {}
