@@ -55,6 +55,10 @@ class Player:
     def max_mana(self):
         return self.stats.max_mana
 
+    @property
+    def rect(self):
+        return pygame.Rect(self.x, self.y, self.size, self.size)
+
 
     def move(self, keys, dt, walls, world_width, world_height):
         dx, dy = 0, 0

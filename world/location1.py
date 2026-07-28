@@ -38,10 +38,15 @@ class Location1:
             NPC(500, 300, "Привет, помоги мне...", quest)
         ]
 
-        self.enemies = [
-            Enemy(600, 200, ENEMY_TYPES["slime"],self),
-            Enemy(400, 300, ENEMY_TYPES["goblin"],self)
-        ]
+        self.enemies = []
+
+        enemy = Enemy(600, 200, ENEMY_TYPES["slime"], self)
+        enemy.load_animation("assets/images/enemies/slime/slime_jump.gif")
+        self.enemies.append(enemy)
+
+        enemy = Enemy(400, 300, ENEMY_TYPES["goblin"], self)
+        #enemy.load_animation("assets/images/enemies/goblin/goblin_attack.gif")
+        self.enemies.append(enemy)
 
         self.exits = [
             {

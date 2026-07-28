@@ -146,3 +146,27 @@ class Stats:
 
             if status["turns"] <= 0:
                 self.statuses.remove(status)
+
+    def to_dict(self):
+        return {
+            "hp": self.hp,
+            "max_hp": self.max_hp,
+            "mana": self.mana,
+            "max_mana": self.max_mana,
+            "stats": self.stats,
+            "bonus": self.bonus,
+            "statuses": self.statuses,
+            "temp_stats": self.temp_stats
+        }
+
+    def from_dict(self, data):
+        self.hp = data.get("hp", self.hp)
+        self.max_hp = data.get("max_hp", self.max_hp)
+
+        self.mana = data.get("mana", self.mana)
+        self.max_mana = data.get("max_mana", self.max_mana)
+
+        self.stats = data.get("stats", self.stats)
+        self.bonus = data.get("bonus", self.bonus)
+        self.statuses = data.get("statuses", self.statuses)
+        self.temp_stats = data.get("temp_stats", self.temp_stats)
