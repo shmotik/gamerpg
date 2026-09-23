@@ -1,7 +1,7 @@
 import pygame
 import os
 import random
-
+#-
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
 

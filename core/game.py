@@ -1,14 +1,16 @@
 from objects.player.player import Player
 from world.locations import LOCATIONS
-from world.location1 import Location1
 from scenes.base_scene import Scene
 from objects.stats import Stats
 from core.battle import Battle
 from UI.message_log import MessageLog
 from objects.npc.dialogue import DialogueBox
 from UI.quest_log import QuestLogUI
+from core.save_system import save_game, load_game
 
 import pygame
+import os
+import json
 
 
 
@@ -16,11 +18,32 @@ class Game(Scene):
 
     def __init__(self):
         self.player = Player()
-        self.location = Location1()
+
+        self.locations = {
+            name: loc_class() for name, loc_class in LOCATIONS.items()
+        }
+
+        self.location = self.locations["loc1"]
+
         self.in_battle = False
         self.messages = MessageLog()
         self.dialogue = DialogueBox()
         self.quest_ui = QuestLogUI(self.player)
+
+        self.current_location_name = "loc1"
+
+        self.world_state = {
+            "loc1": {
+                "killed_enemies": [],
+                "looted_items": []
+            },
+            "loc2": {
+                "killed_enemies": [],
+                "looted_items": []
+            }
+        }
+
+        self.save_slot = 1
 
     def update_fonts(self):        
         screen = pygame.display.get_surface()
@@ -87,6 +110,12 @@ class Game(Scene):
                     if event.key == pygame.K_SPACE:
                         self.dialogue.close()
 
+                if event.key == pygame.K_F5:
+                    save_game(self, 1)
+
+                if event.key == pygame.K_F9:
+                    load_game(self, 1)
+
         #столкновение с врагом
         player_rect = pygame.Rect(self.player.x, self.player.y, self.player.size, self.player.size)
 
@@ -106,7 +135,7 @@ class Game(Scene):
         for exit in self.location.exits:
             if player_rect.colliderect(exit["rect"]):
 
-                self.location = LOCATIONS[exit["target"]]()
+                self.location = self.locations[exit["target"]]
                 self.player.x, self.player.y = exit["spawn"]
 
                 break
@@ -223,3 +252,50 @@ class Game(Scene):
                 self.messages.add(f"Выпал предмет: {item.name}")
         
         self.player.progress.add_kill(enemy_type.name)
+
+    def save_game(self, slot=1):
+        os.makedirs("saves", exist_ok=True)
+
+        data = {
+            "player": {
+                "x": self.player.rect.x,
+                "y": self.player.rect.y,
+                "location": self.current_location_name,
+                "hp": self.player.stats.hp
+            },
+            "inventory": getattr(self.player, "inventory", {}).get("items", []),
+            "stats": self.player.stats.__dict__,
+            "world": self.world_state
+        }
+
+        with open(f"saves/save{slot}.json", "w") as f:
+            json.dump(data, f, indent=4)
+
+        print(f"[SAVE] slot {slot}")
+
+    def load_game(self, slot=1):
+        try:
+            with open(f"saves/save{slot}.json", "r") as f:
+                data = json.load(f)
+        except FileNotFoundError:
+            print("Нет сохранения")
+            return
+
+        # игрок
+        self.player.rect.x = data["player"]["x"]
+        self.player.rect.y = data["player"]["y"]
+        self.player.stats.hp = data["player"]["hp"]
+
+        # локация
+        loc_name = data["player"]["location"]
+        self.current_location_name = loc_name
+        self.location = self.locations[loc_name]
+
+        # мир
+        self.world_state = data["world"]
+
+        # инвентарь (если есть)
+        if hasattr(self.player, "inventory"):
+            self.player.inventory.items = data["inventory"]
+
+        print(f"[LOAD] slot {slot}")

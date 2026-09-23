@@ -5,6 +5,7 @@ import os
 import heapq
 
 from objects.enemies.combat_ai import CombatAI
+from core.utils import load_gif
 
 class Enemy:
     def __init__(self, x, y, enemy_type, location):
@@ -40,12 +41,18 @@ class Enemy:
         self.wander_timer = 0
 
         self.image = pygame.image.load(
-            os.path.join("assets", "images", "enemies", f"{self.type}.png")
+            os.path.join("assets", "images", "enemies", f"{self.type}", f"{self.type}.png")
         ).convert_alpha()
         self.image = pygame.transform.scale(self.image, (40,40))
 
         self.last_seen_pos = None
         self.memory_timer = 0   
+
+        self.frames = []
+        self.anim_index = 0
+        self.anim_timer = 0
+        self.anim_speed = 0.1
+        self.direction = "right"
 
     def draw(self, screen, camera_x, camera_y):
         if not self.alive:
@@ -54,25 +61,39 @@ class Enemy:
         x = self.rect.x - camera_x
         y = self.rect.y - camera_y
 
-        screen.blit(self.image, (x,y))
+        if self.frames:
+            image = self.frames[self.anim_index]
 
-        rect = pygame.Rect(
-            self.rect.x - camera_x,
-            self.rect.y - camera_y,
-            self.rect.width,
-            self.rect.height
-        )
+            if self.direction == "left":
+                image = pygame.transform.flip(image, True, False)
+
+            screen.blit(image, (x, y))
+        else:
+            screen.blit(self.image, (x, y))
 
     def update(self, dt, walls):
         if self.alive:
             self.move(dt, walls)
 
+            # направление
+            if self.dir_x > 0:
+                self.direction = "right"
+            elif self.dir_x < 0:
+                self.direction = "left"
+
+            # анимация
+            if self.frames:
+                self.anim_timer += dt
+                if self.anim_timer > self.anim_speed:
+                    self.anim_timer = 0
+                    self.anim_index = (self.anim_index + 1) % len(self.frames)
+
             if not self.stats.is_alive():
                 self.die()
-            
+
         else:
-            self.respawn_timer -=dt
-            if self.respawn_timer <=0:
+            self.respawn_timer -= dt
+            if self.respawn_timer <= 0:
                 self.respawn()
 
     def move(self, dt, walls):
@@ -310,4 +331,11 @@ class Enemy:
 
         path.reverse()
         return path
+
+    def load_animation(self, path):
+        self.frames = load_gif(path)
+
+    
+
+
 
