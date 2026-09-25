@@ -1,8 +1,10 @@
 import pygame
 
+
 class ItemDrop:
-    def __init__(self, x, y, item):
+    def __init__(self, x, y, item, item_id):
         self.item = item
+        self.item_id = item_id
         self.rect = pygame.Rect(x, y, 30, 30)
 
     def draw(self, screen, camera_x, camera_y):
@@ -13,4 +15,4 @@ class ItemDrop:
             self.rect.height
         )
 
-        pygame.draw.rect(screen, (255, 255, 0), rect)  # жёлтый квадратик
+        pygame.draw.rect(screen, (255, 255, 0), rect)

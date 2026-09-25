@@ -78,7 +78,12 @@ class Game(Scene):
             if player_rect.colliderect(item.rect):
                 self.player.inventory.add(item.item)
                 self.location.items.remove(item)
-                self.messages.add(f'Вы получили: {item.item.name}')
+
+                self.world_state[self.current_location_name]["looted_items"].append(
+                    item.item_id
+                )
+
+                self.messages.add(f"Вы получили: {item.item.name}")
 
         # смерть игрока
         if not self.player.stats.is_alive():
