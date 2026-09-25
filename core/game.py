@@ -23,14 +23,13 @@ class Game(Scene):
             name: loc_class() for name, loc_class in LOCATIONS.items()
         }
 
-        self.location = self.locations["loc1"]
+        self.current_location_name = "loc1"
+        self.location = self.locations[self.current_location_name]
 
         self.in_battle = False
         self.messages = MessageLog()
         self.dialogue = DialogueBox()
         self.quest_ui = QuestLogUI(self.player)
-
-        self.current_location_name = "loc1"
 
         self.world_state = {
             "loc1": {
@@ -134,10 +133,10 @@ class Game(Scene):
 
         for exit in self.location.exits:
             if player_rect.colliderect(exit["rect"]):
+                self.current_location_name = exit["target"]
+                self.location = self.locations[self.current_location_name]
 
-                self.location = self.locations[exit["target"]]
                 self.player.x, self.player.y = exit["spawn"]
-
                 break
         
         # рендер
