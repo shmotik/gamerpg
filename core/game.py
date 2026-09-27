@@ -19,6 +19,8 @@ class Game(Scene):
     def __init__(self):
         self.player = Player()
 
+        self.zoom = 1.0
+
         self.locations = {
             name: loc_class() for name, loc_class in LOCATIONS.items()
         }

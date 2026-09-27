@@ -66,10 +66,42 @@ while running:
         if isinstance(result, tuple):
             action, data = result
 
-            # применить разрешение
-            if action == "apply":
+            # =========================
+            # РАЗРЕШЕНИЕ
+            # =========================
+            if action == "apply_resolution":
+
                 w, h = data
-                screen = pygame.display.set_mode((w, h))
+
+                screen = pygame.display.set_mode(
+                    (w, h)
+                )
+
+                menu.update_fonts()
+                game.update_fonts()
+                pause.update_fonts()
+                settings.update_fonts()
+
+                if battle:
+                    battle.update_fonts()
+
+                state = settings_from
+
+            # =========================
+            # ZOOM
+            # =========================
+            elif action == "apply_zoom":
+
+                game.zoom = data
+
+                state = settings_from
+
+            # =========================
+            # НАЗАД
+            # =========================
+            elif action == "back":
+
+                state = data
 
                 menu.update_fonts()
                 game.update_fonts()
