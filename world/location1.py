@@ -25,8 +25,8 @@ class Location1:
         self.height = 2000
 
         self.items = [
-            ItemDrop(700, 300, get_potion()),
-            ItemDrop(700, 400, get_sword())
+            ItemDrop(700, 300, get_potion(), "loc1_potion_1"),
+            ItemDrop(700, 400, get_sword(), "loc1_sword_1")
         ]
 
         self.walls = [
