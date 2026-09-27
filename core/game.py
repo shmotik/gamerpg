@@ -76,16 +76,31 @@ class Game(Scene):
         player_rect = pygame.Rect(self.player.x, self.player.y, 32, 32)
 
         # дроп
+        # дроп
         for item in self.location.items[:]:
+
             if player_rect.colliderect(item.rect):
+
+                # Добавляем предмет в инвентарь
                 self.player.inventory.add(item.item)
+
+                # Убираем предмет с карты
                 self.location.items.remove(item)
 
-                self.world_state[self.current_location_name]["looted_items"].append(
-                    item.item_id
-                )
+                # Запоминаем, что именно этот предмет был поднят
+                if item.item_id not in self.world_state[
+                    self.current_location_name
+                ]["looted_items"]:
 
-                self.messages.add(f"Вы получили: {item.item.name}")
+                    self.world_state[
+                        self.current_location_name
+                    ]["looted_items"].append(
+                        item.item_id
+                    )
+
+                self.messages.add(
+                    f"Вы получили: {item.item.name}"
+                )
 
         # смерть игрока
         if not self.player.stats.is_alive():
