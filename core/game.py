@@ -58,6 +58,22 @@ class Game(Scene):
 
         self.messages.set_font(self.small)
 
+    def apply_world_state(self):
+        for location_name, state in self.world_state.items():
+
+            location = self.locations.get(location_name)
+
+            if not location:
+                continue
+
+            looted_items = state.get("looted_items", [])
+
+            location.items = [
+                item
+                for item in location.items
+                if item.item_id not in looted_items
+            ]
+
     def update(self, screen, keys, events, dt):
         self.messages.update(dt)
 
@@ -76,30 +92,26 @@ class Game(Scene):
         player_rect = pygame.Rect(self.player.x, self.player.y, 32, 32)
 
         # дроп
-        # дроп
         for item in self.location.items[:]:
 
             if player_rect.colliderect(item.rect):
 
-                # Добавляем предмет в инвентарь
+                # добавляем предмет в инвентарь
                 self.player.inventory.add(item.item)
 
-                # Убираем предмет с карты
+                # убираем предмет с карты
                 self.location.items.remove(item)
 
-                # Запоминаем, что именно этот предмет был поднят
-                if item.item_id not in self.world_state[
+                # записываем ID предмета в состояние мира
+                looted_items = self.world_state[
                     self.current_location_name
-                ]["looted_items"]:
+                ]["looted_items"]
 
-                    self.world_state[
-                        self.current_location_name
-                    ]["looted_items"].append(
-                        item.item_id
-                    )
+                if item.item_id not in looted_items:
+                    looted_items.append(item.item_id)
 
                 self.messages.add(
-                    f"Вы получили: {item.item.name}"
+                    f'Вы получили: {item.item.name}'
                 )
 
         # смерть игрока
