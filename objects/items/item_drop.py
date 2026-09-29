@@ -2,12 +2,23 @@ import pygame
 
 
 class ItemDrop:
+
     def __init__(self, x, y, item, item_id):
+
         self.item = item
+
+        # Уникальный ID предмета НА КАРТЕ
         self.item_id = item_id
-        self.rect = pygame.Rect(x, y, 30, 30)
+
+        self.rect = pygame.Rect(
+            x,
+            y,
+            30,
+            30
+        )
 
     def draw(self, screen, camera_x, camera_y):
+
         rect = pygame.Rect(
             self.rect.x - camera_x,
             self.rect.y - camera_y,
@@ -15,4 +26,8 @@ class ItemDrop:
             self.rect.height
         )
 
-        pygame.draw.rect(screen, (255, 255, 0), rect)
+        pygame.draw.rect(
+            screen,
+            (255, 255, 0),
+            rect
+        )

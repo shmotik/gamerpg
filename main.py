@@ -64,11 +64,13 @@ while running:
         result = settings.update(screen, keys, events, settings_from)
 
         if isinstance(result, tuple):
+
             action, data = result
 
-            # =========================
-            # РАЗРЕШЕНИЕ
-            # =========================
+            # ==========================================
+            # ПРИМЕНИТЬ РАЗРЕШЕНИЕ
+            # ==========================================
+
             if action == "apply_resolution":
 
                 w, h = data
@@ -87,41 +89,23 @@ while running:
 
                 state = settings_from
 
-            # =========================
-            # ZOOM
-            # =========================
+            # ==========================================
+            # ПРИМЕНИТЬ ZOOM
+            # ==========================================
+
             elif action == "apply_zoom":
 
                 game.zoom = data
 
                 state = settings_from
 
-            # =========================
+            # ==========================================
             # НАЗАД
-            # =========================
+            # ==========================================
+
             elif action == "back":
 
-                state = data
-
-                menu.update_fonts()
-                game.update_fonts()
-                pause.update_fonts()
-                settings.update_fonts()
-
-                if battle:
-                    battle.update_fonts()
-
                 state = settings_from
-
-
-            # вернуться назад
-            elif action == "back":
-                state = settings_from
-
-
-            # остаться в settings
-            elif action == "stay":
-                state = "settings"
 
 
     # ================= BATTLE (ОТДЕЛЬНО) =================
