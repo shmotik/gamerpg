@@ -21,8 +21,10 @@ class Game(Scene):
 
         self.zoom = 1.0
 
-        self.locations = {
-            name: loc_class() for name, loc_class in LOCATIONS.items()
+        # Запоминаем исходные предметы каждой локации
+        self.initial_items = {
+            name: list(location.items)
+            for name, location in self.locations.items()
         }
 
         self.current_location_name = "loc1"
@@ -59,13 +61,15 @@ class Game(Scene):
         self.messages.set_font(self.small)
 
     def apply_world_state(self):
-        for location_name, state in self.world_state.items():
+        for location_name, location in self.locations.items():
 
-            location = self.locations.get(location_name)
+            # Сначала восстанавливаем исходный список предметов
+            location.items = list(
+                self.initial_items.get(location_name, [])
+            )
 
-            if not location:
-                continue
-
+            # Затем убираем те, которые уже подобрали
+            state = self.world_state.get(location_name, {})
             looted_items = state.get("looted_items", [])
 
             location.items = [
