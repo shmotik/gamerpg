@@ -1,0 +1,11 @@
+
+# Сохранения игры
+saves/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Настройки IDE
+.vscode/
+.idea/
