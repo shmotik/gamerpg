@@ -144,10 +144,23 @@ class Game(Scene):
                         self.dialogue.close()
 
                 if event.key == pygame.K_F5:
-                    save_game(self, 1)
+                    save_game(self, self.save_slot)
+                    self.messages.add(
+                        f"Игра сохранена в слот {self.save_slot}",
+                        color=(0, 255, 0)
+                    )
 
                 if event.key == pygame.K_F9:
-                    load_game(self, 1)
+                    if load_game(self, self.save_slot):
+                        self.messages.add(
+                            f"Игра загружена из слота {self.save_slot}",
+                            color=(0, 255, 0)
+                        )
+                    else:
+                        self.messages.add(
+                            f"Слот {self.save_slot} пуст или повреждён",
+                            color=(255, 100, 100)
+                        )
 
         #столкновение с врагом
         player_rect = pygame.Rect(self.player.x, self.player.y, self.player.size, self.player.size)
@@ -286,49 +299,4 @@ class Game(Scene):
         
         self.player.progress.add_kill(enemy_type.name)
 
-    def save_game(self, slot=1):
-        os.makedirs("saves", exist_ok=True)
 
-        data = {
-            "player": {
-                "x": self.player.rect.x,
-                "y": self.player.rect.y,
-                "location": self.current_location_name,
-                "hp": self.player.stats.hp
-            },
-            "inventory": getattr(self.player, "inventory", {}).get("items", []),
-            "stats": self.player.stats.__dict__,
-            "world": self.world_state
-        }
-
-        with open(f"saves/save{slot}.json", "w") as f:
-            json.dump(data, f, indent=4)
-
-        print(f"[SAVE] slot {slot}")
-
-    def load_game(self, slot=1):
-        try:
-            with open(f"saves/save{slot}.json", "r") as f:
-                data = json.load(f)
-        except FileNotFoundError:
-            print("Нет сохранения")
-            return
-
-        # игрок
-        self.player.rect.x = data["player"]["x"]
-        self.player.rect.y = data["player"]["y"]
-        self.player.stats.hp = data["player"]["hp"]
-
-        # локация
-        loc_name = data["player"]["location"]
-        self.current_location_name = loc_name
-        self.location = self.locations[loc_name]
-
-        # мир
-        self.world_state = data["world"]
-
-        # инвентарь (если есть)
-        if hasattr(self.player, "inventory"):
-            self.player.inventory.items = data["inventory"]
-
-        print(f"[LOAD] slot {slot}")

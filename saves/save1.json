@@ -1,0 +1,147 @@
+{
+    "version": 1,
+    "saved_at": "02.10.2026 10:24:02",
+    "player": {
+        "x": 1211.495822076288,
+        "y": 385.79162312650334,
+        "location": "loc1",
+        "stats": {
+            "hp": 90,
+            "max_hp": 100,
+            "mana": 50,
+            "max_mana": 50,
+            "stats": {
+                "attack": 0,
+                "defense": 3,
+                "speed": 2,
+                "luck": 2,
+                "alchemy": 1,
+                "smithing": 0
+            },
+            "bonus": {},
+            "statuses": [],
+            "temp_stats": {}
+        }
+    },
+    "inventory": [
+        {
+            "name": "Sword",
+            "type": "buff",
+            "value": 0,
+            "description": "Бонус:+5 attack",
+            "stat_bonus": {
+                "attack": 5
+            },
+            "slot": "weapon"
+        },
+        {
+            "name": "Potion",
+            "type": "heal",
+            "value": 20,
+            "description": "Восстанавливает 20 HP",
+            "stat_bonus": {},
+            "slot": null
+        },
+        {
+            "name": "Potion",
+            "type": "heal",
+            "value": 20,
+            "description": "Восстанавливает 20 HP",
+            "stat_bonus": {},
+            "slot": null
+        }
+    ],
+    "equipment": {
+        "weapon": null,
+        "armor": null
+    },
+    "progress": {
+        "level": 1,
+        "xp": 20,
+        "stat_points": 0,
+        "stats": {
+            "attack": 0,
+            "defense": 0,
+            "speed": 0,
+            "luck": 0,
+            "alchemy": 0,
+            "smithing": 0
+        },
+        "total_kills": {
+            "slime": 1
+        },
+        "total_items": {},
+        "quest_kills": {
+            "slime": 1
+        },
+        "quest_items": {}
+    },
+    "skills": [
+        "Power Strike"
+    ],
+    "world": {
+        "loc1": {
+            "killed_enemies": [],
+            "looted_items": [
+                "loc1_sword_1",
+                "loc1_potion_1"
+            ]
+        },
+        "loc2": {
+            "killed_enemies": [],
+            "looted_items": []
+        }
+    },
+    "quests": {
+        "loc1": [
+            {
+                "given": true,
+                "completed": false
+            }
+        ],
+        "loc2": []
+    },
+    "enemies": {
+        "loc1": [
+            {
+                "alive": false,
+                "respawn_timer": 2.3949999999999956,
+                "stats": {
+                    "hp": 0,
+                    "max_hp": 30,
+                    "mana": 50,
+                    "max_mana": 50,
+                    "stats": {
+                        "attack": 0,
+                        "defense": 1,
+                        "speed": 3,
+                        "luck": 0
+                    },
+                    "bonus": {},
+                    "statuses": [],
+                    "temp_stats": {}
+                }
+            },
+            {
+                "alive": true,
+                "respawn_timer": 0,
+                "stats": {
+                    "hp": 50,
+                    "max_hp": 50,
+                    "mana": 50,
+                    "max_mana": 50,
+                    "stats": {
+                        "attack": 0,
+                        "defense": 3,
+                        "speed": 6,
+                        "luck": 0
+                    },
+                    "bonus": {},
+                    "statuses": [],
+                    "temp_stats": {}
+                }
+            }
+        ],
+        "loc2": []
+    }
+}

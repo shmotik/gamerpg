@@ -22,7 +22,12 @@ class Menu(Scene):
         self.up_keys = [pygame.K_UP, pygame.K_w]
         self.down_keys = [pygame.K_DOWN, pygame.K_s]
 
-        self.buttons = ["START", "SETTINGS", "EXIT"]
+        self.buttons = [
+            "START",
+            "LOAD GAME",
+            "SETTINGS",
+            "EXIT"
+        ]
         self.selected = 0
 
     def update(self, screen, keys, events, dt=None):
@@ -46,6 +51,9 @@ class Menu(Scene):
                     if self.buttons[self.selected] == "START":
                         self.switch_to("game")
                         return "game"
+
+                    if self.buttons[self.selected] == "LOAD GAME":
+                        return ("save_load", "load", "menu")
 
                     if self.buttons[self.selected] == "SETTINGS":
                         return ("settings", "menu")
