@@ -22,7 +22,13 @@ class Pause(Scene):
         self.up_keys = [pygame.K_UP, pygame.K_w]
         self.down_keys = [pygame.K_DOWN, pygame.K_s]
 
-        self.buttons = ["RESUME", "SETTINGS", "MAIN MENU"]
+        self.buttons = [
+            "RESUME",
+            "SAVE GAME",
+            "LOAD GAME",
+            "SETTINGS",
+            "MAIN MENU"
+        ]
         self.selected = 0
 
     def update(self, screen, keys, events, dt=None):
@@ -44,13 +50,21 @@ class Pause(Scene):
 
                 if event.key == pygame.K_RETURN:
 
-                    if self.buttons[self.selected] == "RESUME":
+                    selected_button = self.buttons[self.selected]
+
+                    if selected_button == "RESUME":
                         return "game"
 
-                    if self.buttons[self.selected] == "SETTINGS":
+                    elif selected_button == "SAVE GAME":
+                        return ("save_load", "save", "pause")
+
+                    elif selected_button == "LOAD GAME":
+                        return ("save_load", "load", "pause")
+
+                    elif selected_button == "SETTINGS":
                         return ("settings", "pause")
 
-                    if self.buttons[self.selected] == "MAIN MENU":
+                    elif selected_button == "MAIN MENU":
                         return "menu"
 
         # рендер
