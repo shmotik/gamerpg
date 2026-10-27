@@ -75,6 +75,10 @@ def collect_enemy_states(game):
             result[location_name].append({
                 "alive": enemy.alive,
                 "respawn_timer": enemy.respawn_timer,
+
+                "x": enemy.x,
+                "y": enemy.y,
+
                 "stats": enemy.stats.to_dict()
             })
 
@@ -239,6 +243,12 @@ def load_game(game, slot=1):
                 enemy_data = saved_enemies[index]
                 enemy.alive = enemy_data.get("alive", True)
                 enemy.respawn_timer = enemy_data.get("respawn_timer", 0)
+                
+                enemy.x = enemy_data.get("x", enemy.spawn_x)
+                enemy.y = enemy_data.get("y", enemy.spawn_y)
+
+                enemy.rect.x = int(enemy.x)
+                enemy.rect.y = int(enemy.y)
 
                 if "stats" in enemy_data:
                     enemy.stats.from_dict(enemy_data["stats"])

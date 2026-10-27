@@ -135,8 +135,13 @@ class Enemy:
         self.alive = True
         self.stats.reset()
 
+        self.x = float(self.spawn_x)
+        self.y = float(self.spawn_y)
+
         self.rect.x = self.spawn_x
         self.rect.y = self.spawn_y
+
+        self.respawn_timer = 0
 
     def update_ai(self, player, dt, walls):
         if not self.alive:
