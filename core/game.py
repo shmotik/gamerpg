@@ -21,6 +21,11 @@ class Game(Scene):
 
         self.zoom = 1.0
 
+        self.locations = {
+            name: location_class()
+            for name, location_class in LOCATIONS.items()
+        }
+
         # Запоминаем исходные предметы каждой локации
         self.initial_items = {
             name: list(location.items)
