@@ -130,6 +130,9 @@ class Player:
             for stat, val in old_item.stat_bonus.items():
                 self.stats.remove_bonus(stat, val)
 
+        if old_item:
+            self.inventory.add(old_item)
+
         # надеть новый
         self.equipment[slot] = item
 
