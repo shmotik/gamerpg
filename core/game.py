@@ -7,6 +7,8 @@ from UI.message_log import MessageLog
 from objects.npc.dialogue import DialogueBox
 from UI.quest_log import QuestLogUI
 from core.save_system import save_game, load_game
+from localization.manager import tr
+from UI.text import get_font
 
 import pygame
 import os
@@ -36,6 +38,7 @@ class Game(Scene):
         self.location = self.locations[self.current_location_name]
 
         self.in_battle = False
+        self.escaped_enemy = None
         self.messages = MessageLog()
         self.dialogue = DialogueBox()
         self.quest_ui = QuestLogUI(self.player)
@@ -57,11 +60,11 @@ class Game(Scene):
         screen = pygame.display.get_surface()
         height = screen.get_height()
 
-        size_big = int(height * 0.08)
-        size_small = int(height * 0.05)
+        size_big = min(36, int(height * 0.06))
+        size_small = min(28, int(height * 0.035))
 
-        self.font = pygame.font.SysFont(None, size_big)
-        self.small = pygame.font.SysFont(None, size_small)
+        self.font = get_font(size_big)
+        self.small = get_font(size_small)
 
         self.messages.set_font(self.small)
 
@@ -179,6 +182,12 @@ class Game(Scene):
             enemy.update_ai(self.player, dt, self.location.walls)
             enemy.update(dt, self.location.walls)
 
+            # После побега ждём расхождения хитбоксов с этим противником.
+            if enemy is self.escaped_enemy:
+                if player_rect.colliderect(enemy.rect):
+                    continue
+                self.escaped_enemy = None
+
             if enemy.alive and player_rect.colliderect(enemy.rect):
 
                 if not self.in_battle:
@@ -236,7 +245,7 @@ class Game(Scene):
         # здоровье (красный)
         pygame.draw.rect(screen, (200, 50, 50), (10, 40, current_width, bar_height))
         
-        hp_text = f"HP: {self.player.stats.hp} / {self.player.stats.max_hp}"
+        hp_text = tr("hud.hp", hp=self.player.stats.hp, maximum=self.player.stats.max_hp)
         text_surface = self.small.render(hp_text, True, (255, 50, 50))
         screen.blit(text_surface, (10, 10))
 
@@ -256,7 +265,7 @@ class Game(Scene):
         pygame.draw.rect(screen, (50, 150, 255), (10, 65, xp_current_width, xp_bar_height))
 
         # текст уровня
-        lvl_text = f"LVL {self.player.progress.level}"
+        lvl_text = tr("hud.level", level=self.player.progress.level)
         lvl_surface = self.small.render(lvl_text, True, (100, 200, 255))
         screen.blit(lvl_surface, (220, 55))
         
@@ -277,7 +286,7 @@ class Game(Scene):
                 pygame.draw.rect(screen, (255,255,0), rect, 2)
 
                 # текст "E"
-                text = self.font.render("E - поговорить", True, (255,255,255))
+                text = self.font.render(tr("hud.talk"), True, (255,255,255))
                 screen.blit(text, (npc.x - camera_x, npc.y - 30))
 
         self.dialogue.draw(screen)

@@ -3,14 +3,18 @@ import os
 import random
 from scenes.save_load import SaveLoadScene
 from core.save_system import save_game, load_game
+from core.config import UserSettings
+from localization.manager import tr, set_language
 #-
 os.environ['SDL_VIDEO_CENTERED'] = '1'
 pygame.init()
+user_settings = UserSettings()
+set_language(user_settings.data["language"])
 
 # экран
-width, height = 800, 600
+width, height = user_settings.data["resolution"]
 screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("My Game")
+pygame.display.set_caption(tr("app.title"))
 
 clock = pygame.time.Clock()
 
@@ -31,9 +35,11 @@ from scenes.inventory_scene import InventoryScene
 
 menu = Menu()
 game = Game()
+game.zoom = user_settings.data["zoom"]
 game.update_fonts()
 pause = Pause()
-settings = Settings()
+battle_pause = Pause(battle_mode=True)
+settings = Settings(user_settings)
 save_load_scene = SaveLoadScene()
 
 battle = None
@@ -42,6 +48,7 @@ scenes = {
     "menu": menu,
     "game": game,
     "pause": pause,
+    "battle_pause": battle_pause,
 }
 
 settings_from = "menu"
@@ -57,6 +64,9 @@ while running:
     for event in events:
         if event.type == pygame.QUIT:
             running = False
+
+    if not running:
+        break
 
     result = None
 
@@ -85,13 +95,15 @@ while running:
                 menu.update_fonts()
                 game.update_fonts()
                 pause.update_fonts()
+                battle_pause.update_fonts()
                 settings.update_fonts()
                 save_load_scene.update_fonts()
 
                 if battle:
                     battle.update_fonts()
 
-                state = settings_from
+                if "inventory" in scenes:
+                    scenes["inventory"].update_fonts()
 
             # ==========================================
             # ПРИМЕНИТЬ ZOOM
@@ -101,7 +113,8 @@ while running:
 
                 game.zoom = data
 
-                state = settings_from
+            elif action == "apply_language":
+                pygame.display.set_caption(tr("app.title"))
 
             # ==========================================
             # НАЗАД
@@ -110,6 +123,9 @@ while running:
             elif action == "back":
 
                 state = settings_from
+
+        if state == "settings":
+            settings.draw(screen)
 
     # ================= SAVE / LOAD =================
     elif state == "save_load":
@@ -133,6 +149,9 @@ while running:
 
 
     # ================= ОБРАБОТКА РЕЗУЛЬТАТОВ =================
+
+    if result == ("battle_surrender",):
+        result = battle.surrender() if battle is not None and state == "battle_pause" else None
 
     if isinstance(result, tuple):
 
@@ -176,10 +195,41 @@ while running:
             state = result[1]
 
         # вход в settings
-        if result[0] == "settings":
+        elif result[0] == "settings":
             _, from_state = result
             settings_from = from_state
             state = "settings"
+
+        elif result[0] == "battle_pause":
+            if battle is not None:
+                battle_pause.open()
+                state = "battle_pause"
+
+        elif result[0] == "battle_end":
+            _, outcome = result
+            if battle is not None and outcome in ("win", "lose", "run"):
+                enemy = battle.enemy
+                # Убираем активный бой до обработки результата: повторно завершить его нельзя.
+                battle = None
+                game.in_battle = False
+                game.current_enemy = None
+                state = "game"
+
+                if outcome == "win":
+                    game.on_enemy_killed(enemy)
+
+                    # Существующий дополнительный расчёт добычи оставлен для отдельной задачи.
+                    for drop_func, chance in enemy.data.drops:
+                        if random.random() < chance:
+                            item = drop_func()
+                            game.player.inventory.add(item)
+                            game.messages.add(f"Вы получили {item.name}", color=(0,255,0))
+
+                    enemy.die()
+                    game.messages.add(f"Вы победили {enemy.type}!", color=(255,250,0))
+                elif outcome == "run":
+                    game.escaped_enemy = enemy
+                # При lose следующий Game.update применит существующее возрождение.
 
 
         # вход в battle
@@ -200,26 +250,6 @@ while running:
         running = False
 
     elif isinstance(result, str):
-
-        if state =="battle" and result == "game":
-            game.in_battle = False
-
-            if hasattr(game, "current_enemy"):
-                enemy = game.current_enemy
-                enemy_type = enemy.data
-
-                game.on_enemy_killed(enemy)
-
-                for drop_func, chance in enemy_type.drops:
-                    if random.random() < chance:
-                        item = drop_func()
-                        game.player.inventory.add(item)
-
-                        game.messages.add(f"Вы победили {enemy.type}!", color=(255,250,0))
-                        game.messages.add(f"Вы получили {item.name}", color=(0,255,0))
-
-                game.current_enemy.die()
-                    
         state = result
 
 

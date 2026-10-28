@@ -9,3 +9,7 @@ __pycache__/
 # Настройки IDE
 .vscode/
 .idea/
+
+# Пользовательские настройки (переводы остаются в Git)
+/config.json
+/config.json.tmp
