@@ -85,6 +85,8 @@ class Stats:
             for buff in self.temp_stats[stat]:
                 bonus += buff["value"]
 
+        bonus += self.bonus.get(stat, 0)
+
         return base + bonus
 
     def add_bonus(self, stat, value):

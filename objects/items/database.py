@@ -22,6 +22,14 @@ def get_sword():
         slot="weapon"
     )
 
+def get_heavy_mace():
+    return Item(
+        "Heavy Mace",
+        "buff",
+        stat_bonus={"attack": 10, "speed": -1},
+        slot="weapon"
+    )
+
 def get_boots():
     return Item(
         "Boots",
