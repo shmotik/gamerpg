@@ -44,10 +44,7 @@ class Menu(Scene):
                 if event.key in self.down_keys:
                     self.selected += 1
 
-                if self.selected < 0:
-                    self.selected = len(self.buttons) - 1
-                if self.selected >= len(self.buttons):
-                    self.selected = 0
+                self.selected = self.selected % len(self.buttons)
 
                 if event.key in controls.BACK:
                     self.selected = self.buttons.index("exit")
@@ -58,13 +55,13 @@ class Menu(Scene):
                         self.switch_to("game")
                         return "game"
 
-                    if self.buttons[self.selected] == "load":
+                    elif self.buttons[self.selected] == "load":
                         return ("save_load", "load", "menu")
 
-                    if self.buttons[self.selected] == "settings":
+                    elif self.buttons[self.selected] == "settings":
                         return ("settings", "menu")
 
-                    if self.buttons[self.selected] == "exit":
+                    elif self.buttons[self.selected] == "exit":
                         self.switch_to("exit")
                         return "exit"
 

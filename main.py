@@ -218,14 +218,8 @@ while running:
                 if outcome == "win":
                     game.on_enemy_killed(enemy)
 
-                    # Существующий дополнительный расчёт добычи оставлен для отдельной задачи.
-                    for drop_func, chance in enemy.data.drops:
-                        if random.random() < chance:
-                            item = drop_func()
-                            game.player.inventory.add(item)
-                            game.messages.add(f"Вы получили {item.name}", color=(0,255,0))
-
                     enemy.die()
+                    
                     game.messages.add(f"Вы победили {enemy.type}!", color=(255,250,0))
                 elif outcome == "run":
                     game.escaped_enemy = enemy
