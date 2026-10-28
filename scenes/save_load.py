@@ -3,6 +3,9 @@ import pygame
 
 from scenes.base_scene import Scene
 from core.save_system import get_save_info, SLOT_COUNT
+from core import controls
+from localization.manager import tr
+from UI.text import get_font, fit_text, draw_hint
 
 
 class SaveLoadScene(Scene):
@@ -17,9 +20,9 @@ class SaveLoadScene(Scene):
         screen = pygame.display.get_surface()
         height = screen.get_height()
 
-        self.title_font = pygame.font.SysFont(None, int(height * 0.08))
-        self.font = pygame.font.SysFont(None, int(height * 0.045))
-        self.small = pygame.font.SysFont(None, int(height * 0.032))
+        self.title_font = get_font(height * 0.06)
+        self.font = get_font(height * 0.04)
+        self.small = get_font(height * 0.028)
 
     def open(self, mode, return_state):
         self.mode = mode
@@ -29,24 +32,26 @@ class SaveLoadScene(Scene):
     def update(self, screen, keys, events, dt=None):
         width, height = screen.get_size()
 
+        card_width = min(width - 80, 700)
         slot_rects = [
-            pygame.Rect(width // 2 - 230, 160 + index * 115, 460, 90)
+            pygame.Rect((width - card_width) // 2, int(height * (0.25 + index * 0.19)),
+                        card_width, int(height * 0.16))
             for index in range(SLOT_COUNT)
         ]
 
         for event in events:
             if event.type == pygame.KEYDOWN:
 
-                if event.key == pygame.K_ESCAPE:
+                if event.key in controls.BACK:
                     return ("back", self.return_state)
 
-                if event.key in (pygame.K_UP, pygame.K_w):
+                if event.key in controls.UP:
                     self.selected = (self.selected - 1) % SLOT_COUNT
 
-                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                elif event.key in controls.DOWN:
                     self.selected = (self.selected + 1) % SLOT_COUNT
 
-                elif event.key == pygame.K_RETURN:
+                elif event.key in controls.CONFIRM:
                     slot = self.selected + 1
 
                     if self.mode == "save":
@@ -68,19 +73,12 @@ class SaveLoadScene(Scene):
 
         screen.fill((15, 15, 35))
 
-        title_text = "СОХРАНЕНИЕ ИГРЫ" if self.mode == "save" else "ЗАГРУЗКА ИГРЫ"
-        title = self.title_font.render(title_text, True, (255, 255, 255))
+        title_text = tr("save.title" if self.mode == "save" else "load.title")
+        title = fit_text(self.title_font, title_text, (255, 255, 255), width - 40)
         screen.blit(title, (width // 2 - title.get_width() // 2, 55))
 
         for index in range(SLOT_COUNT):
             slot = index + 1
-
-            rect = pygame.Rect(
-                width // 2 - 230,
-                160 + index * 115,
-                460,
-                90
-            )
 
             rect = slot_rects[index]
 
@@ -89,35 +87,23 @@ class SaveLoadScene(Scene):
 
             info = get_save_info(slot)
 
-            name = self.font.render(f"Слот {slot}", True, (255, 255, 255))
-            screen.blit(name, (rect.x + 20, rect.y + 12))
+            name = fit_text(self.font, tr("save.slot", slot=slot), (255, 255, 255), rect.width - 40)
+            screen.blit(name, (rect.x + 20, rect.y + 6))
 
             if info:
-                details = (
-                    f"Уровень: {info['level']}   "
-                    f"Локация: {info['location']}"
-                )
-                date = f"Сохранено: {info['saved_at']}"
+                details = tr("save.details", level=info['level'], location=info['location'])
+                date = tr("save.date", date=info['saved_at'])
 
-                details_text = self.small.render(details, True, (200, 200, 200))
-                date_text = self.small.render(date, True, (170, 170, 170))
+                details_text = fit_text(self.small, details, (200, 200, 200), rect.width - 40)
+                date_text = fit_text(self.small, date, (170, 170, 170), rect.width - 40)
 
-                screen.blit(details_text, (rect.x + 20, rect.y + 43))
-                screen.blit(date_text, (rect.x + 20, rect.y + 65))
+                screen.blit(details_text, (rect.x + 20, rect.y + int(rect.height * 0.43)))
+                screen.blit(date_text, (rect.x + 20, rect.y + int(rect.height * 0.70)))
 
             else:
-                empty_text = self.small.render("Пустой слот", True, (160, 160, 160))
+                empty_text = self.small.render(tr("save.empty"), True, (160, 160, 160))
                 screen.blit(empty_text, (rect.x + 20, rect.y + 48))
 
-        hint = self.small.render(
-            "Стрелки — выбор   ENTER — подтвердить   ESC — назад",
-            True,
-            (180, 180, 180)
-        )
-
-        screen.blit(
-            hint,
-            (width // 2 - hint.get_width() // 2, height - 45)
-        )
+        draw_hint(screen)
 
         return "save_load"

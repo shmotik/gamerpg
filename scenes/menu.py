@@ -1,6 +1,9 @@
 import pygame
 
 from scenes.base_scene import Scene
+from core import controls
+from localization.manager import tr
+from UI.text import get_font, fit_text, draw_hint
 
 
 class Menu(Scene):
@@ -12,21 +15,21 @@ class Menu(Scene):
         font_size_big = int(height * 0.08)
         font_size_small = int(height * 0.05)
 
-        self.font = pygame.font.SysFont(None, font_size_big)
-        self.small = pygame.font.SysFont(None, font_size_small)
+        self.font = get_font(font_size_big)
+        self.small = get_font(font_size_small)
 
     def __init__(self):
 
         self.update_fonts()
 
-        self.up_keys = [pygame.K_UP, pygame.K_w]
-        self.down_keys = [pygame.K_DOWN, pygame.K_s]
+        self.up_keys = controls.UP
+        self.down_keys = controls.DOWN
 
         self.buttons = [
-            "START",
-            "LOAD GAME",
-            "SETTINGS",
-            "EXIT"
+            "start",
+            "load",
+            "settings",
+            "exit"
         ]
         self.selected = 0
 
@@ -46,19 +49,22 @@ class Menu(Scene):
                 if self.selected >= len(self.buttons):
                     self.selected = 0
 
-                if event.key == pygame.K_RETURN:
+                if event.key in controls.BACK:
+                    self.selected = self.buttons.index("exit")
 
-                    if self.buttons[self.selected] == "START":
+                if event.key in controls.CONFIRM:
+
+                    if self.buttons[self.selected] == "start":
                         self.switch_to("game")
                         return "game"
 
-                    if self.buttons[self.selected] == "LOAD GAME":
+                    if self.buttons[self.selected] == "load":
                         return ("save_load", "load", "menu")
 
-                    if self.buttons[self.selected] == "SETTINGS":
+                    if self.buttons[self.selected] == "settings":
                         return ("settings", "menu")
 
-                    if self.buttons[self.selected] == "EXIT":
+                    if self.buttons[self.selected] == "exit":
                         self.switch_to("exit")
                         return "exit"
 
@@ -67,18 +73,19 @@ class Menu(Scene):
 
         width, height = screen.get_size()
 
-        title = self.font.render("MY GAME", True, (255, 255, 255))
-        screen.blit(title, (300, 100))
+        title = fit_text(self.font, tr("menu.title"), (255, 255, 255), width - 40)
+        screen.blit(title, ((width - title.get_width()) // 2, int(height * 0.15)))
 
         for i, btn in enumerate(self.buttons):
 
             color = (255, 255, 0) if i == self.selected else (200, 200, 200)
 
-            text = self.small.render(btn, True, color)
+            text = fit_text(self.small, tr(f"menu.{btn}"), color, width - 40)
 
             x = width // 2 - text.get_width() // 2
-            y = height // 2 + i * 60
+            y = int(height * (0.38 + i * 0.09))
             screen.blit(text, (x, y))
             
 
+        draw_hint(screen)
         return "menu"
